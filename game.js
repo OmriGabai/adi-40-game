@@ -46,10 +46,10 @@ const CHARACTERS = {
     { emoji: '💊', name: '', type: 'bad', points: CONFIG.points.bad, message: 'Vitamins already?!' },
   ],
   family: [
-    { emoji: '👧', name: 'Gal', type: 'family', points: CONFIG.points.family, message: "Gal: Mom's still got it!" },
-    { emoji: '👦', name: 'Bar', type: 'family', points: CONFIG.points.family, message: "Bar: Happy 40th, Mom!" },
-    { emoji: '👶', name: 'Liv', type: 'family', points: CONFIG.points.family, message: "Liv: You're the best!" },
-    { emoji: '👨', name: 'Eran', type: 'family', points: CONFIG.points.eran, message: "Eran: You don't look a day over 39!" },
+    { image: 'pics/gal.jpg', name: 'Gal', type: 'family', points: CONFIG.points.family, message: "Gal: Mom's still got it!" },
+    { image: 'pics/bar.jpg', name: 'Bar', type: 'family', points: CONFIG.points.family, message: "Bar: Happy 40th, Mom!" },
+    { image: 'pics/liv.jpg', name: 'Liv', type: 'family', points: CONFIG.points.family, message: "Liv: You're the best!" },
+    { image: 'pics/eran.JPG', name: 'Eran', type: 'family', points: CONFIG.points.eran, message: "Eran: You don't look a day over 39!" },
   ]
 };
 
@@ -313,11 +313,18 @@ function spawnCharacter() {
   const holeEl = elements.holes[holeIndex];
   const charEl = holeEl.querySelector('.character');
 
-  // Set character appearance
-  charEl.innerHTML = `
-    <span class="emoji">${character.emoji}</span>
-    ${character.name ? `<span class="name">${character.name}</span>` : ''}
-  `;
+  // Set character appearance (image or emoji)
+  if (character.image) {
+    charEl.innerHTML = `
+      <img src="${character.image}" alt="${character.name}" class="char-image">
+      <span class="name">${character.name}</span>
+    `;
+  } else {
+    charEl.innerHTML = `
+      <span class="emoji">${character.emoji}</span>
+      ${character.name ? `<span class="name">${character.name}</span>` : ''}
+    `;
+  }
   charEl.className = `character visible ${character.type}`;
 
   // Set visibility duration
