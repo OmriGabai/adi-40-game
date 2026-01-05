@@ -421,13 +421,19 @@ function fadeOutAudio(audioEl, duration) {
 function stopAllAudio() {
   if (!audio) return;
   try {
-    audio.gameplay.pause();
-    audio.gameplay.currentTime = 0;
-    audio.boss.pause();
-    audio.boss.currentTime = 0;
-    audio.purr.pause();
-    audio.purr.currentTime = 0;
-  } catch (e) {}
+    // Stop and reset all audio tracks
+    [audio.gameplay, audio.boss, audio.purr].forEach(track => {
+      if (track) {
+        track.pause();
+        track.currentTime = 0;
+        // Reset volume in case it was fading
+        track.volume = track === audio.gameplay ? 0.4 :
+                       track === audio.boss ? 0.5 : 0.7;
+      }
+    });
+  } catch (e) {
+    console.log('Error stopping audio:', e);
+  }
 }
 
 // Simple synthesized sounds for tap feedback (non-blocking)
@@ -507,6 +513,9 @@ function showMessage(text, type = 'good') {
 // ============================================
 
 function resetGame() {
+  // Stop any playing audio first
+  stopAllAudio();
+
   gameState.score = 0;
   gameState.timeLeft = CONFIG.gameDuration;
   gameState.isPlaying = false;
@@ -550,13 +559,13 @@ function getRandomCharacter() {
   let pool;
 
   if (rand < 0.30) {
-    // 30% chance for family (more frequent!)
+    // 30% chance for family
     pool = CHARACTERS.family;
-  } else if (rand < 0.50) {
-    // 20% chance for bad items
+  } else if (rand < 0.60) {
+    // 30% chance for bad items (increased from 20%)
     pool = CHARACTERS.bad;
   } else {
-    // 50% chance for good items
+    // 40% chance for good items
     pool = CHARACTERS.good;
   }
 
@@ -752,7 +761,8 @@ function startPitzRound() {
   runCountdown(elements.pitzCountdownText, () => {
     // Now start the actual Pitz round
     showScreen('pitz');
-    playBossMusic();
+    // Small delay to ensure clean audio transition
+    setTimeout(() => playBossMusic(), 100);
 
     // Pitz timer
     let pitzTime = CONFIG.pitzDuration;
