@@ -173,19 +173,34 @@ body::before {
 }
 
 #start-screen h1 {
-  font-size: 2rem;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  text-shadow: none;
+  font-weight: 900;
+  position: relative;
+  z-index: 1;
+  line-height: 1.1;
+}
+
+#start-screen h1 .title-line1,
+#start-screen h1 .title-line2 {
+  display: block;
   background: linear-gradient(135deg, #fff 0%, #fbbf24 30%, #f59e0b 50%, #fbbf24 70%, #fff 100%);
   background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 4s linear infinite;
-  text-shadow: none;
-  font-weight: 900;
-  letter-spacing: 2px;
-  position: relative;
-  z-index: 1;
+}
+
+#start-screen h1 .title-line1 {
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+}
+
+#start-screen h1 .title-line2 {
+  font-size: 2.4rem;
+  letter-spacing: 3px;
+  margin-top: 2px;
 }
 
 @keyframes shimmer {
@@ -194,12 +209,46 @@ body::before {
 }
 
 .logo-subtitle {
-  font-size: 0.9rem;
-  color: rgba(251, 191, 36, 0.9);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  animation: fadeInUp 0.8s ease-out 0.1s backwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.mazal-tov {
+  font-size: 1.4rem;
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+  animation: mazalGlow 2s ease-in-out infinite;
+}
+
+.mazal-tov-en {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 8px;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background-size: 400% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbowShift 3s linear infinite;
+}
+
+@keyframes mazalGlow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(251, 191, 36, 1), 0 0 60px rgba(251, 191, 36, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% center; }
+  100% { background-position: 400% center; }
 }
 
 @keyframes float {
