@@ -13,13 +13,35 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Animated background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 107, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(78, 205, 196, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.2) 0%, transparent 40%);
+  animation: backgroundPulse 8s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes backgroundPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 /* ============================================
@@ -43,102 +65,294 @@ body {
 }
 
 /* ============================================
-   START SCREEN
+   START SCREEN - Premium Design
    ============================================ */
 
+#start-screen {
+  animation: screenFadeIn 0.8s ease-out;
+  position: relative;
+  overflow: visible;
+}
+
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating particles */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.6;
+  animation: particleFloat 15s linear infinite;
+}
+
+.particle:nth-child(1) { left: 5%; animation-delay: 0s; animation-duration: 12s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 14s; }
+.particle:nth-child(3) { left: 40%; animation-delay: 4s; animation-duration: 11s; }
+.particle:nth-child(4) { left: 60%; animation-delay: 1s; animation-duration: 13s; }
+.particle:nth-child(5) { left: 80%; animation-delay: 3s; animation-duration: 15s; }
+.particle:nth-child(6) { left: 95%; animation-delay: 5s; animation-duration: 10s; }
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.7; }
+  100% {
+    transform: translateY(-100px) rotate(360deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Logo container */
+.logo-container {
+  position: relative;
+  text-align: center;
+  margin-bottom: 5px;
+  z-index: 1;
+}
+
+.logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 80px;
+  background: radial-gradient(ellipse, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
+  filter: blur(20px);
+  animation: logoGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoGlowPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
 #start-screen h1 {
-  font-size: 1.8rem;
+  font-size: 2rem;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #fff 0%, #fbbf24 30%, #f59e0b 50%, #fbbf24 70%, #fff 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+  text-shadow: none;
+  font-weight: 900;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
+.logo-subtitle {
+  font-size: 0.9rem;
+  color: rgba(251, 191, 36, 0.9);
+  letter-spacing: 4px;
+  text-transform: uppercase;
   margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  animation: fadeInUp 0.8s ease-out 0.1s backwards;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(10deg); }
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   opacity: 0.9;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  color: #e2e8f0;
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .instructions {
-  background: rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
   width: 100%;
+  animation: fadeInUp 0.8s ease-out 0.3s backwards;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .instructions p {
-  margin: 8px 0;
-  font-size: 0.95rem;
+  margin: 10px 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .instructions .good {
   color: #4ade80;
-  font-weight: bold;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
 }
 
 .instructions .bad {
   color: #f87171;
-  font-weight: bold;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+}
+
+/* Warning text with glow */
+.instructions p:last-child {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fbbf24;
+  font-weight: 600;
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(251, 191, 36, 0.3); }
+  50% { text-shadow: 0 0 20px rgba(251, 191, 36, 0.8); }
 }
 
 .name-input {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
 }
 
 .name-input input {
   width: 100%;
-  padding: 15px;
+  padding: 16px 20px;
   font-size: 1.1rem;
-  border: none;
-  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   text-align: center;
-  background: rgba(255,255,255,0.95);
-  color: #333;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: white;
+  transition: all 0.3s ease;
 }
 
 .name-input input::placeholder {
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.name-input input:focus {
+  outline: none;
+  border-color: #fbbf24;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
 /* ============================================
-   BUTTONS
+   BUTTONS - Premium Design
    ============================================ */
 
 .btn-primary {
   width: 100%;
   padding: 18px;
   font-size: 1.3rem;
-  font-weight: bold;
+  font-weight: 700;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
   cursor: pointer;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  transition: transform 0.1s, box-shadow 0.1s;
+  margin-bottom: 12px;
+  box-shadow:
+    0 4px 15px rgba(245, 87, 108, 0.4),
+    0 0 30px rgba(240, 147, 251, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out 0.5s backwards;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transform: scale(0.97);
+  box-shadow:
+    0 2px 10px rgba(245, 87, 108, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Pulsing glow animation for primary button */
+#start-btn {
+  animation: fadeInUp 0.8s ease-out 0.5s backwards, buttonGlow 2s ease-in-out infinite 1.5s;
+}
+
+@keyframes buttonGlow {
+  0%, 100% { box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4), 0 0 30px rgba(240, 147, 251, 0.2); }
+  50% { box-shadow: 0 4px 25px rgba(245, 87, 108, 0.6), 0 0 50px rgba(240, 147, 251, 0.4); }
 }
 
 .btn-secondary {
   width: 100%;
   padding: 14px;
   font-size: 1rem;
-  border: 2px solid rgba(255,255,255,0.5);
-  border-radius: 10px;
-  background: transparent;
-  color: white;
+  font-weight: 500;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease-out 0.6s backwards;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-secondary:active {
-  background: rgba(255,255,255,0.1);
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* ============================================
@@ -300,17 +514,15 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-/* Character types */
-.character.good {
-  background: radial-gradient(circle, rgba(74, 222, 128, 0.8) 0%, rgba(34, 197, 94, 0.6) 100%);
-}
-
-.character.bad {
-  background: radial-gradient(circle, rgba(248, 113, 113, 0.8) 0%, rgba(239, 68, 68, 0.6) 100%);
-}
-
+/* Character types - same background for all to not give hints */
+.character.good,
+.character.bad,
 .character.family {
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.9) 0%, rgba(245, 158, 11, 0.7) 100%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(230, 230, 240, 0.9) 100%);
+}
+
+/* Family members wiggle */
+.character.family {
   animation: wiggle 0.4s ease-in-out infinite;
 }
 
