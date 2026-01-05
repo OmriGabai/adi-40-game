@@ -499,7 +499,8 @@ body::before {
   margin-top: -5px;
 }
 
-/* Ensure taps always register on parent */
+/* Ensure taps always register on parent hole */
+.character,
 .character * {
   pointer-events: none;
 }

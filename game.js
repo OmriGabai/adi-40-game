@@ -14,7 +14,7 @@ const CONFIG = {
 
   // Visibility durations (ms)
   normalVisibility: 1500,
-  familyVisibility: 900, // Slightly longer for better tap detection
+  familyVisibility: 1000, // 1 second for family (still challenging but tappable)
 
   // Scoring
   points: {
@@ -623,13 +623,30 @@ elements.playerName.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') startGame();
 });
 
-// Hole taps
-elements.holes.forEach((hole, index) => {
-  hole.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
+// Hole taps - using event delegation on the game board for better reliability
+elements.gameBoard.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+
+  // Find the hole element that was tapped
+  const hole = e.target.closest('.hole');
+  if (hole) {
+    const index = parseInt(hole.dataset.hole, 10);
     handleHoleTap(index);
-  });
+  }
 });
+
+// Also add touchstart for better mobile response
+elements.gameBoard.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+
+  const touch = e.touches[0];
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  const hole = element?.closest('.hole');
+  if (hole) {
+    const index = parseInt(hole.dataset.hole, 10);
+    handleHoleTap(index);
+  }
+}, { passive: false });
 
 // Pitz tap
 elements.pitzCat.addEventListener('pointerdown', (e) => {
