@@ -7,14 +7,14 @@
 // ============================================
 
 const CONFIG = {
-  gameDuration: 60,
-  pitzDuration: 5,
-  pitzTriggerTime: 10, // Pitz appears when timer hits this
-  spawnInterval: 800, // ms between spawns
+  gameDuration: 20,
+  pitzDuration: 10,
+  pitzTriggerTime: 5, // Pitz appears when timer hits this
+  spawnInterval: 400, // ms between spawns (faster = more chaos!)
 
   // Visibility durations (ms)
-  normalVisibility: 1500,
-  familyVisibility: 1000, // 1 second for family (still challenging but tappable)
+  normalVisibility: 1200,
+  familyVisibility: 800, // shorter visibility for more challenge
 
   // Scoring
   points: {
