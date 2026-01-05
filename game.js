@@ -14,7 +14,7 @@ const CONFIG = {
 
   // Visibility durations (ms)
   normalVisibility: 1500,
-  familyVisibility: 700,
+  familyVisibility: 900, // Slightly longer for better tap detection
 
   // Scoring
   points: {
