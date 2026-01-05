@@ -8,13 +8,13 @@
 
 const CONFIG = {
   gameDuration: 20,
-  pitzDuration: 10,
+  pitzDuration: 6,
   pitzTriggerTime: 5, // Pitz appears when timer hits this
   spawnInterval: 400, // ms between spawns (faster = more chaos!)
 
-  // Visibility durations (ms)
-  normalVisibility: 1200,
-  familyVisibility: 800, // shorter visibility for more challenge
+  // Visibility durations (ms) - 50% longer for easier tapping
+  normalVisibility: 1800,
+  familyVisibility: 1200,
 
   // Scoring
   points: {
@@ -126,8 +126,32 @@ const elements = {
   playAgainBtn: document.getElementById('play-again-btn'),
   endLeaderboardBtn: document.getElementById('end-leaderboard-btn'),
   leaderboardList: document.getElementById('leaderboard-list'),
-  backBtn: document.getElementById('back-btn')
+  backBtn: document.getElementById('back-btn'),
+  muteBtn: document.getElementById('mute-btn')
 };
+
+// ============================================
+// MUTE STATE
+// ============================================
+
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted;
+
+  if (elements.muteBtn) {
+    elements.muteBtn.textContent = isMuted ? '🔇' : '🔊';
+    elements.muteBtn.classList.toggle('muted', isMuted);
+  }
+
+  // Mute/unmute all audio
+  if (audio) {
+    audio.gameplay.muted = isMuted;
+    audio.boss.muted = isMuted;
+    audio.purr.muted = isMuted;
+    audio.meows.forEach(m => m.muted = isMuted);
+  }
+}
 
 // ============================================
 // SOUND SYSTEM (Audio Files)
@@ -723,12 +747,17 @@ async function loadLeaderboard() {
         .once('value');
 
       snapshot.forEach(child => {
-        scores.push(child.val());
+        const entry = child.val();
+        // Exclude test entries
+        if (!entry.name.toLowerCase().includes('test')) {
+          scores.push(entry);
+        }
       });
       scores.reverse(); // Highest first
     } else {
       // Load from local storage
       scores = JSON.parse(localStorage.getItem('adi40scores') || '[]');
+      scores = scores.filter(s => !s.name.toLowerCase().includes('test'));
       scores.sort((a, b) => b.score - a.score);
       scores = scores.slice(0, 10);
     }
@@ -771,6 +800,11 @@ function showLeaderboard() {
 
 // Start button
 elements.startBtn.addEventListener('click', startGame);
+
+// Mute button
+if (elements.muteBtn) {
+  elements.muteBtn.addEventListener('click', toggleMute);
+}
 
 // Enter key on name input
 elements.playerName.addEventListener('keypress', (e) => {
