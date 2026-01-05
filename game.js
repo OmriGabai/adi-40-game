@@ -35,15 +35,15 @@ const CONFIG = {
 
 const CHARACTERS = {
   good: [
-    { emoji: '🎁', name: '', type: 'good', points: CONFIG.points.gift, message: 'Ooh, presents!' },
-    { emoji: '🎂', name: '', type: 'good', points: CONFIG.points.cake, message: 'More cake!' },
-    { emoji: '🎈', name: '', type: 'good', points: CONFIG.points.balloon, message: 'Pop!' },
+    { image: 'pics/gift.svg', name: 'Gift', type: 'good', points: CONFIG.points.gift, message: 'Ooh, presents!' },
+    { image: 'pics/cake.svg', name: 'Cake', type: 'good', points: CONFIG.points.cake, message: 'More cake!' },
+    { image: 'pics/balloon.svg', name: 'Balloon', type: 'good', points: CONFIG.points.balloon, message: 'Pop!' },
   ],
   bad: [
-    { emoji: '4️⃣0️⃣', name: '', type: 'bad', points: CONFIG.points.bad, message: 'NOOOOO!' },
-    { emoji: '👓', name: '', type: 'bad', points: CONFIG.points.bad, message: "Bifocals of Doom!" },
-    { emoji: '🦳', name: '', type: 'bad', points: CONFIG.points.bad, message: 'Wisdom strand!' },
-    { emoji: '💊', name: '', type: 'bad', points: CONFIG.points.bad, message: 'Vitamins already?!' },
+    { image: 'pics/forty.svg', name: '40', type: 'bad', points: CONFIG.points.bad, message: 'NOOOOO! The dreaded 40!' },
+    { image: 'pics/glasses.svg', name: 'Glasses', type: 'bad', points: CONFIG.points.bad, message: "Bifocals of Doom!" },
+    { image: 'pics/grayhair.svg', name: 'Gray Hair', type: 'bad', points: CONFIG.points.bad, message: 'Distinguished wisdom!' },
+    { image: 'pics/pills.svg', name: 'Vitamins', type: 'bad', points: CONFIG.points.bad, message: 'Vitamins already?!' },
   ],
   family: [
     { image: 'pics/gal.jpg', name: 'Gal', type: 'family', points: CONFIG.points.family, message: "Gal: Mom's still got it!" },
@@ -313,19 +313,10 @@ function spawnCharacter() {
   const holeEl = elements.holes[holeIndex];
   const charEl = holeEl.querySelector('.character');
 
-  // Set character appearance (image or emoji)
-  if (character.image) {
-    charEl.innerHTML = `
-      <img src="${character.image}" alt="${character.name}" class="char-image">
-      <span class="name">${character.name}</span>
-    `;
-  } else {
-    charEl.innerHTML = `
-      <span class="emoji">${character.emoji}</span>
-      ${character.name ? `<span class="name">${character.name}</span>` : ''}
-    `;
-  }
+  // Set character appearance - all use images now
+  charEl.innerHTML = `<img src="${character.image}" alt="${character.name}" class="char-image">`;
   charEl.className = `character visible ${character.type}`;
+  charEl.dataset.holeIndex = holeIndex; // Store index for tap handling
 
   // Set visibility duration
   const duration = character.type === 'family' ? CONFIG.familyVisibility : CONFIG.normalVisibility;
@@ -623,30 +614,39 @@ elements.playerName.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') startGame();
 });
 
-// Hole taps - using event delegation on the game board for better reliability
-elements.gameBoard.addEventListener('pointerdown', (e) => {
+// Hole taps - robust handling using bounding box detection
+function handleGameBoardTap(e) {
   e.preventDefault();
+  e.stopPropagation();
 
-  // Find the hole element that was tapped
-  const hole = e.target.closest('.hole');
-  if (hole) {
-    const index = parseInt(hole.dataset.hole, 10);
-    handleHoleTap(index);
+  // Get tap coordinates
+  let x, y;
+  if (e.touches && e.touches.length > 0) {
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } else if (e.changedTouches && e.changedTouches.length > 0) {
+    x = e.changedTouches[0].clientX;
+    y = e.changedTouches[0].clientY;
+  } else {
+    x = e.clientX;
+    y = e.clientY;
   }
-});
 
-// Also add touchstart for better mobile response
-elements.gameBoard.addEventListener('touchstart', (e) => {
-  e.preventDefault();
+  // Find which hole was tapped by checking each hole's bounding box
+  for (let i = 0; i < elements.holes.length; i++) {
+    const hole = elements.holes[i];
+    const rect = hole.getBoundingClientRect();
 
-  const touch = e.touches[0];
-  const element = document.elementFromPoint(touch.clientX, touch.clientY);
-  const hole = element?.closest('.hole');
-  if (hole) {
-    const index = parseInt(hole.dataset.hole, 10);
-    handleHoleTap(index);
+    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+      handleHoleTap(i);
+      return;
+    }
   }
-}, { passive: false });
+}
+
+// Multiple event listeners for maximum compatibility
+elements.gameBoard.addEventListener('mousedown', handleGameBoardTap);
+elements.gameBoard.addEventListener('touchstart', handleGameBoardTap, { passive: false });
 
 // Pitz tap
 elements.pitzCat.addEventListener('pointerdown', (e) => {

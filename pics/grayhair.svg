@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#dfe6e9"/>
+      <stop offset="100%" style="stop-color:#b2bec3"/>
+    </linearGradient>
+  </defs>
+  <!-- Hair strands -->
+  <path d="M25 90 Q20 60 30 30 Q35 10 40 30" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M40 90 Q38 55 45 25 Q50 5 50 25" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M55 90 Q58 50 55 20 Q52 5 60 25" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M70 90 Q75 55 68 30 Q65 15 75 35" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- Sparkles to indicate gray/silver -->
+  <circle cx="35" cy="40" r="3" fill="white" opacity="0.8"/>
+  <circle cx="55" cy="35" r="2" fill="white" opacity="0.8"/>
+  <circle cx="65" cy="50" r="3" fill="white" opacity="0.8"/>
+</svg>

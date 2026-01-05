@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="balloonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a29bfe"/>
+      <stop offset="50%" style="stop-color:#6c5ce7"/>
+      <stop offset="100%" style="stop-color:#5f27cd"/>
+    </linearGradient>
+  </defs>
+  <!-- Balloon -->
+  <ellipse cx="50" cy="38" rx="30" ry="35" fill="url(#balloonGrad)"/>
+  <!-- Highlight -->
+  <ellipse cx="38" cy="28" rx="8" ry="12" fill="rgba(255,255,255,0.3)"/>
+  <!-- Knot -->
+  <polygon points="50,73 45,78 55,78" fill="#5f27cd"/>
+  <!-- String -->
+  <path d="M50 78 Q45 85 50 90 Q55 95 50 100" stroke="#5f27cd" stroke-width="2" fill="none"/>
+</svg>
