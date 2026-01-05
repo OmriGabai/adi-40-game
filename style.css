@@ -45,6 +45,58 @@ body::before {
 }
 
 /* ============================================
+   GLOBAL MUTE BUTTON
+   ============================================ */
+
+.global-mute-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  cursor: pointer;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.global-mute-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.global-mute-btn:active {
+  transform: scale(0.95);
+}
+
+.global-mute-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.global-mute-btn.muted {
+  background: rgba(239, 68, 68, 0.7);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+.global-mute-btn.muted .sound-on {
+  display: none;
+}
+
+.global-mute-btn.muted .sound-off {
+  display: block !important;
+}
+
+/* ============================================
    LOADING SCREEN
    ============================================ */
 
@@ -516,28 +568,6 @@ body::before {
   padding: 12px 20px;
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.mute-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mute-btn:active {
-  transform: scale(0.9);
-}
-
-.mute-btn.muted {
-  opacity: 0.5;
 }
 
 .score-display .label, .timer-display .label {

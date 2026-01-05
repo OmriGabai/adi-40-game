@@ -127,7 +127,7 @@ const elements = {
   endLeaderboardBtn: document.getElementById('end-leaderboard-btn'),
   leaderboardList: document.getElementById('leaderboard-list'),
   backBtn: document.getElementById('back-btn'),
-  muteBtn: document.getElementById('mute-btn')
+  globalMuteBtn: document.getElementById('global-mute-btn')
 };
 
 // ============================================
@@ -139,9 +139,8 @@ let isMuted = false;
 function toggleMute() {
   isMuted = !isMuted;
 
-  if (elements.muteBtn) {
-    elements.muteBtn.textContent = isMuted ? '🔇' : '🔊';
-    elements.muteBtn.classList.toggle('muted', isMuted);
+  if (elements.globalMuteBtn) {
+    elements.globalMuteBtn.classList.toggle('muted', isMuted);
   }
 
   // Mute/unmute all audio
@@ -1038,9 +1037,9 @@ function showLeaderboard() {
 // Start button
 elements.startBtn.addEventListener('click', startGame);
 
-// Mute button
-if (elements.muteBtn) {
-  elements.muteBtn.addEventListener('click', toggleMute);
+// Global mute button
+if (elements.globalMuteBtn) {
+  elements.globalMuteBtn.addEventListener('click', toggleMute);
 }
 
 // Enter key on name input
