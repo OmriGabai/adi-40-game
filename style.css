@@ -45,6 +45,50 @@ body::before {
 }
 
 /* ============================================
+   LOADING SCREEN
+   ============================================ */
+
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease-out;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fbbf24;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  letter-spacing: 2px;
+}
+
+/* ============================================
    SCREENS
    ============================================ */
 
@@ -349,33 +393,6 @@ body::before {
 }
 
 /* ============================================
-   LOADING INDICATOR
-   ============================================ */
-
-.loading-indicator {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  margin-bottom: 10px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  display: none;
-  animation: loadingPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes loadingPulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-#start-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  animation: none;
-}
-
-/* ============================================
    BUTTONS - Premium Design
    ============================================ */
 
@@ -667,12 +684,13 @@ body::before {
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  transform: translateY(100%);
-  transition: transform 0.15s ease-out;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .character.visible {
-  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
 }
 
 .character .name {
@@ -727,9 +745,9 @@ body::before {
 }
 
 @keyframes tapBounce {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.8); }
-  100% { transform: scale(1) translateY(100%); }
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.85); opacity: 0.8; }
+  100% { transform: scale(0.7); opacity: 0; }
 }
 
 /* ============================================

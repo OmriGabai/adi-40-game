@@ -240,16 +240,9 @@ function preloadAudio(audioElement) {
 }
 
 async function preloadAllResources() {
-  const loadingIndicator = document.getElementById('loading-indicator');
-  const startBtn = document.getElementById('start-btn');
-
-  if (loadingIndicator) {
-    loadingIndicator.style.display = 'block';
-  }
-  if (startBtn) {
-    startBtn.disabled = true;
-    startBtn.textContent = 'Loading...';
-  }
+  const loadingScreen = document.getElementById('loading-screen');
+  const loaderText = loadingScreen?.querySelector('.loader-text');
+  const startScreen = document.getElementById('start-screen');
 
   const totalResources = ALL_IMAGES.length + 6; // 6 audio files
   let loaded = 0;
@@ -257,8 +250,8 @@ async function preloadAllResources() {
   const updateProgress = () => {
     loaded++;
     loadingProgress = Math.round((loaded / totalResources) * 100);
-    if (loadingIndicator) {
-      loadingIndicator.textContent = `Loading resources... ${loadingProgress}%`;
+    if (loaderText) {
+      loaderText.textContent = `Loading... ${loadingProgress}%`;
     }
   };
 
@@ -285,12 +278,16 @@ async function preloadAllResources() {
 
   resourcesLoaded = true;
 
-  if (loadingIndicator) {
-    loadingIndicator.style.display = 'none';
+  // Hide loading screen and show start screen
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+    // Remove from DOM after transition
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 500);
   }
-  if (startBtn) {
-    startBtn.disabled = false;
-    startBtn.textContent = 'START GAME';
+  if (startScreen) {
+    startScreen.classList.add('active');
   }
 
   console.log('All resources preloaded!');
@@ -391,8 +388,45 @@ function playRandomMeow() {
 function playPurrSound() {
   if (!audio) return;
   try {
+    audio.purr.volume = 0.7;
     audio.purr.currentTime = 0;
     audio.purr.play().catch(e => console.log('Purr error:', e));
+
+    // Fade out after 4 seconds
+    setTimeout(() => {
+      fadeOutAudio(audio.purr, 2000);
+    }, 4000);
+  } catch (e) {}
+}
+
+function fadeOutAudio(audioEl, duration) {
+  if (!audioEl) return;
+  const startVolume = audioEl.volume;
+  const steps = 20;
+  const stepTime = duration / steps;
+  const volumeStep = startVolume / steps;
+
+  let currentStep = 0;
+  const fadeInterval = setInterval(() => {
+    currentStep++;
+    audioEl.volume = Math.max(0, startVolume - (volumeStep * currentStep));
+    if (currentStep >= steps) {
+      clearInterval(fadeInterval);
+      audioEl.pause();
+      audioEl.volume = startVolume; // Reset for next play
+    }
+  }, stepTime);
+}
+
+function stopAllAudio() {
+  if (!audio) return;
+  try {
+    audio.gameplay.pause();
+    audio.gameplay.currentTime = 0;
+    audio.boss.pause();
+    audio.boss.currentTime = 0;
+    audio.purr.pause();
+    audio.purr.currentTime = 0;
   } catch (e) {}
 }
 
@@ -700,8 +734,8 @@ function startPitzRound() {
   clearInterval(gameState.spawnInterval);
   clearInterval(gameState.timerInterval);
 
-  // Stop gameplay music
-  stopGameplayMusic();
+  // Stop all audio to prevent overlap
+  stopAllAudio();
 
   // Clear holes
   gameState.holes = Array(9).fill(null);

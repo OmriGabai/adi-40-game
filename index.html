@@ -8,8 +8,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen">
+    <div class="loader-spinner"></div>
+    <p class="loader-text">Loading...</p>
+  </div>
+
   <!-- START SCREEN -->
-  <div id="start-screen" class="screen active">
+  <div id="start-screen" class="screen">
     <!-- Floating particles including Adi -->
     <div class="particles">
       <span class="particle">🎈</span>
@@ -40,7 +46,6 @@
       <input type="text" id="player-name" placeholder="Enter your name" maxlength="15">
     </div>
 
-    <div id="loading-indicator" class="loading-indicator">Loading resources...</div>
     <button id="start-btn" class="btn-primary">START GAME</button>
 
     <button id="leaderboard-btn" class="btn-secondary">View Leaderboard</button>
