@@ -594,6 +594,23 @@ function showMessage(text, type = 'good') {
   }, 1500);
 }
 
+// Red flash effect for bad items
+function flashScreenRed() {
+  const flash = document.createElement('div');
+  flash.className = 'red-flash';
+  document.body.appendChild(flash);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    flash.classList.add('active');
+  });
+
+  // Remove after animation
+  setTimeout(() => {
+    flash.remove();
+  }, 300);
+}
+
 // ============================================
 // GAME LOGIC
 // ============================================
@@ -647,11 +664,11 @@ function getRandomCharacter() {
   if (rand < 0.30) {
     // 30% chance for family
     pool = CHARACTERS.family;
-  } else if (rand < 0.70) {
-    // 40% chance for bad items
+  } else if (rand < 0.65) {
+    // 35% chance for bad items
     pool = CHARACTERS.bad;
   } else {
-    // 30% chance for good items
+    // 35% chance for good items
     pool = CHARACTERS.good;
   }
 
@@ -723,11 +740,12 @@ function handleHoleTap(holeIndex) {
   updateScore(character.points);
   showMessage(character.message, character.type);
 
-  // Play sound
+  // Play sound and effects
   if (character.type === 'good') {
     playGoodSound();
   } else if (character.type === 'bad') {
     playBadSound();
+    flashScreenRed();
   } else if (character.type === 'family') {
     playFamilySound();
   }
@@ -829,8 +847,8 @@ function startPitzRound() {
   clearInterval(gameState.spawnInterval);
   clearInterval(gameState.timerInterval);
 
-  // Stop all audio to prevent overlap
-  stopAllAudio();
+  // Keep gameplay music running through Pitz
+  // (simpler audio = better iOS compatibility)
 
   // Clear holes
   gameState.holes = Array(9).fill(null);
@@ -847,8 +865,7 @@ function startPitzRound() {
   runCountdown(elements.pitzCountdownText, () => {
     // Now start the actual Pitz round
     showScreen('pitz');
-    // Small delay to ensure clean audio transition
-    setTimeout(() => playBossMusic(), 100);
+    // Gameplay music continues through Pitz
 
     // Pitz timer
     let pitzTime = CONFIG.pitzDuration;
@@ -901,8 +918,7 @@ function endPitzRound() {
   gameState.isPitzRound = false;
   gameState.isPlaying = false;
 
-  // Stop boss music and play purr
-  stopBossMusic();
+  // Play purr (gameplay music continues)
   playPurrSound();
 
   // Calculate final score

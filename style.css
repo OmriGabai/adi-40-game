@@ -45,6 +45,26 @@ body::before {
 }
 
 /* ============================================
+   RED FLASH EFFECT (Bad Item)
+   ============================================ */
+
+.red-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(239, 68, 68, 0);
+  pointer-events: none;
+  z-index: 9998;
+  transition: background 0.15s ease-out;
+}
+
+.red-flash.active {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================
    GLOBAL MUTE BUTTON
    ============================================ */
 
