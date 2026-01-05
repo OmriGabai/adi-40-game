@@ -670,7 +670,13 @@ function startGame() {
       gameState.timeLeft--;
       updateUI();
 
+      // Start screen shake 2 seconds before Pitz
+      if (gameState.timeLeft === CONFIG.pitzTriggerTime + 2 && !gameState.isPitzRound) {
+        elements.screens.game.classList.add('screen-shake');
+      }
+
       if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
+        elements.screens.game.classList.remove('screen-shake');
         startPitzRound();
       }
     }, 1000);

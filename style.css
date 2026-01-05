@@ -470,6 +470,17 @@ body::before {
   animation: screenFadeIn 0.5s ease-out;
 }
 
+/* Screen shake before Pitz */
+.screen-shake {
+  animation: screenShake 0.15s ease-in-out infinite !important;
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px) rotate(-0.5deg); }
+  75% { transform: translateX(4px) rotate(0.5deg); }
+}
+
 .game-header {
   display: flex;
   justify-content: space-between;
