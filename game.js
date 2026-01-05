@@ -513,8 +513,8 @@ function showEndScreen(gameScore, pitzScore, totalScore) {
 // FIREBASE / LEADERBOARD
 // ============================================
 
-// Firebase will be initialized when config is added
-let firebaseInitialized = false;
+// Firebase initialized status (set by firebase-config.js)
+let firebaseInitialized = window.firebaseInitialized || false;
 
 async function saveScore(name, score) {
   elements.savingIndicator.textContent = 'Saving score...';
