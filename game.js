@@ -190,6 +190,119 @@ function createAudioElements() {
 // Initialize on page load
 createAudioElements();
 
+// ============================================
+// RESOURCE PRELOADING
+// ============================================
+
+const ALL_IMAGES = [
+  // Good items
+  'pics/gift.svg',
+  'pics/cake.svg',
+  'pics/balloon.svg',
+  // Bad items
+  'pics/forty.svg',
+  'pics/glasses.svg',
+  'pics/grayhair.svg',
+  'pics/pills.svg',
+  // Family photos
+  'pics/gal.jpg',
+  'pics/bar.jpg',
+  'pics/liv.jpg',
+  'pics/eran.JPG',
+  // Special
+  'pics/pitz.jpg',
+  'pics/adi.jpg'
+];
+
+let resourcesLoaded = false;
+let loadingProgress = 0;
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false); // Still resolve to not block
+    img.src = src;
+  });
+}
+
+function preloadAudio(audioElement) {
+  return new Promise((resolve) => {
+    if (audioElement.readyState >= 3) {
+      resolve(true);
+      return;
+    }
+    audioElement.addEventListener('canplaythrough', () => resolve(true), { once: true });
+    audioElement.addEventListener('error', () => resolve(false), { once: true });
+    // Timeout fallback
+    setTimeout(() => resolve(true), 5000);
+  });
+}
+
+async function preloadAllResources() {
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const startBtn = document.getElementById('start-btn');
+
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'block';
+  }
+  if (startBtn) {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Loading...';
+  }
+
+  const totalResources = ALL_IMAGES.length + 6; // 6 audio files
+  let loaded = 0;
+
+  const updateProgress = () => {
+    loaded++;
+    loadingProgress = Math.round((loaded / totalResources) * 100);
+    if (loadingIndicator) {
+      loadingIndicator.textContent = `Loading resources... ${loadingProgress}%`;
+    }
+  };
+
+  // Preload images
+  const imagePromises = ALL_IMAGES.map(src =>
+    preloadImage(src).then(result => {
+      updateProgress();
+      return result;
+    })
+  );
+
+  // Preload audio
+  const audioPromises = [];
+  if (audio) {
+    audioPromises.push(preloadAudio(audio.gameplay).then(r => { updateProgress(); return r; }));
+    audioPromises.push(preloadAudio(audio.boss).then(r => { updateProgress(); return r; }));
+    audioPromises.push(preloadAudio(audio.purr).then(r => { updateProgress(); return r; }));
+    audio.meows.forEach(m => {
+      audioPromises.push(preloadAudio(m).then(r => { updateProgress(); return r; }));
+    });
+  }
+
+  await Promise.all([...imagePromises, ...audioPromises]);
+
+  resourcesLoaded = true;
+
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'none';
+  }
+  if (startBtn) {
+    startBtn.disabled = false;
+    startBtn.textContent = 'START GAME';
+  }
+
+  console.log('All resources preloaded!');
+}
+
+// Start preloading when DOM is ready
+document.addEventListener('DOMContentLoaded', preloadAllResources);
+// Also try immediately if DOM already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  preloadAllResources();
+}
+
 // Track audio unlock status for mobile
 let audioUnlocked = false;
 
@@ -352,7 +465,7 @@ function showMessage(text, type = 'good') {
 
   messageTimeout = setTimeout(() => {
     elements.messagePopup.classList.remove('show');
-  }, 600);
+  }, 1500);
 }
 
 // ============================================
