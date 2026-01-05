@@ -561,11 +561,11 @@ function getRandomCharacter() {
   if (rand < 0.30) {
     // 30% chance for family
     pool = CHARACTERS.family;
-  } else if (rand < 0.60) {
-    // 30% chance for bad items (increased from 20%)
+  } else if (rand < 0.70) {
+    // 40% chance for bad items
     pool = CHARACTERS.bad;
   } else {
-    // 40% chance for good items
+    // 30% chance for good items
     pool = CHARACTERS.good;
   }
 
