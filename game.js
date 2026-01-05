@@ -160,16 +160,23 @@ function toggleMute() {
 // Audio elements - create fresh instances to avoid caching issues
 let audio = null;
 
+function createAudioElement(src) {
+  const audio = new Audio();
+  audio.preload = 'auto';
+  audio.src = src;
+  return audio;
+}
+
 function createAudioElements() {
   audio = {
-    gameplay: new Audio('audio/gameplay-342069.mp3'),
-    boss: new Audio('audio/boss-stage.mp3'),
+    gameplay: createAudioElement('audio/gameplay-342069.mp3'),
+    boss: createAudioElement('audio/boss-stage.mp3'),
     meows: [
-      new Audio('audio/cat-meow-401729.mp3'),
-      new Audio('audio/cat-meow-405456.mp3'),
-      new Audio('audio/cat-meow-85175.mp3')
+      createAudioElement('audio/cat-meow-401729.mp3'),
+      createAudioElement('audio/cat-meow-405456.mp3'),
+      createAudioElement('audio/cat-meow-85175.mp3')
     ],
-    purr: new Audio('audio/cat-purr-361421.mp3')
+    purr: createAudioElement('audio/cat-purr-361421.mp3')
   };
 
   // Configure audio settings
@@ -180,11 +187,13 @@ function createAudioElements() {
   audio.purr.volume = 0.7;
   audio.meows.forEach(m => m.volume = 0.6);
 
-  // Preload all audio
-  audio.gameplay.load();
-  audio.boss.load();
-  audio.purr.load();
-  audio.meows.forEach(m => m.load());
+  // Force load all audio into memory
+  const allAudio = [audio.gameplay, audio.boss, audio.purr, ...audio.meows];
+  allAudio.forEach(a => {
+    a.load();
+    // Pre-buffer by seeking to start
+    a.currentTime = 0;
+  });
 }
 
 // Initialize on page load
@@ -228,14 +237,31 @@ function preloadImage(src) {
 
 function preloadAudio(audioElement) {
   return new Promise((resolve) => {
-    if (audioElement.readyState >= 3) {
+    // If already loaded, resolve immediately
+    if (audioElement.readyState >= 4) {
       resolve(true);
       return;
     }
+
+    // Try to fetch the audio file to ensure it's cached
+    const src = audioElement.src;
+    if (src) {
+      fetch(src)
+        .then(response => response.blob())
+        .then(() => {
+          // Force reload from cache
+          audioElement.load();
+          resolve(true);
+        })
+        .catch(() => resolve(false));
+    }
+
+    // Also listen for canplaythrough as backup
     audioElement.addEventListener('canplaythrough', () => resolve(true), { once: true });
     audioElement.addEventListener('error', () => resolve(false), { once: true });
+
     // Timeout fallback
-    setTimeout(() => resolve(true), 5000);
+    setTimeout(() => resolve(true), 8000);
   });
 }
 
