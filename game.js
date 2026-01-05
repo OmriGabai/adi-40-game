@@ -189,11 +189,27 @@ function initAudio() {
 }
 
 function playGameplayMusic() {
-  if (!audio) return;
+  if (!audio || !audio.gameplay) {
+    console.log('Audio not initialized');
+    return;
+  }
   try {
     audio.gameplay.currentTime = 0;
-    audio.gameplay.play().catch(e => console.log('Gameplay music error:', e));
-  } catch (e) {}
+    const playPromise = audio.gameplay.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => console.log('Gameplay music started'))
+        .catch(e => {
+          console.log('Gameplay music blocked, retrying...', e);
+          // Retry after a short delay
+          setTimeout(() => {
+            audio.gameplay.play().catch(() => {});
+          }, 500);
+        });
+    }
+  } catch (e) {
+    console.log('Gameplay music exception:', e);
+  }
 }
 
 function stopGameplayMusic() {
@@ -358,14 +374,14 @@ function getRandomCharacter() {
   const rand = Math.random();
   let pool;
 
-  if (rand < 0.15) {
-    // 15% chance for family (rare but rewarding)
+  if (rand < 0.30) {
+    // 30% chance for family (more frequent!)
     pool = CHARACTERS.family;
-  } else if (rand < 0.35) {
+  } else if (rand < 0.50) {
     // 20% chance for bad items
     pool = CHARACTERS.bad;
   } else {
-    // 65% chance for good items
+    // 50% chance for good items
     pool = CHARACTERS.good;
   }
 
@@ -468,8 +484,10 @@ function startGame() {
 
   showScreen('game');
 
-  // Start background music
-  playGameplayMusic();
+  // Start background music (with small delay to ensure audio is ready)
+  setTimeout(() => {
+    playGameplayMusic();
+  }, 100);
 
   // Start timer
   gameState.timerInterval = setInterval(() => {
