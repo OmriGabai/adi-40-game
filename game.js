@@ -304,6 +304,9 @@ async function preloadAllResources() {
 
   resourcesLoaded = true;
 
+  // Initialize meow pool for overlapping sounds
+  initMeowPool();
+
   // Hide loading screen and show start screen
   if (loadingScreen) {
     loadingScreen.classList.add('hidden');
@@ -330,17 +333,18 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 let audioUnlocked = false;
 
 function initAudio() {
-  if (audioUnlocked) return;
+  if (audioUnlocked || !audio) return;
 
-  // Recreate audio elements to ensure fresh state
-  createAudioElements();
-
-  // Try to play and immediately pause to unlock audio on mobile
+  // Just unlock the existing preloaded audio - don't recreate!
   const unlockAudio = (audioEl) => {
-    audioEl.play().then(() => {
-      audioEl.pause();
-      audioEl.currentTime = 0;
-    }).catch(() => {});
+    if (!audioEl) return;
+    const playPromise = audioEl.play();
+    if (playPromise) {
+      playPromise.then(() => {
+        audioEl.pause();
+        audioEl.currentTime = 0;
+      }).catch(() => {});
+    }
   };
 
   unlockAudio(audio.gameplay);
@@ -349,7 +353,7 @@ function initAudio() {
   audio.meows.forEach(unlockAudio);
 
   audioUnlocked = true;
-  console.log('Audio initialized');
+  console.log('Audio unlocked');
 }
 
 function playGameplayMusic() {
@@ -357,18 +361,24 @@ function playGameplayMusic() {
     console.log('Audio not initialized');
     return;
   }
+
+  // Make sure boss music is stopped first
+  if (audio.boss) {
+    audio.boss.pause();
+    audio.boss.currentTime = 0;
+  }
+
   try {
     audio.gameplay.currentTime = 0;
+    audio.gameplay.volume = 0.4;
+    audio.gameplay.muted = isMuted;
+
     const playPromise = audio.gameplay.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => console.log('Gameplay music started'))
         .catch(e => {
-          console.log('Gameplay music blocked, retrying...', e);
-          // Retry after a short delay
-          setTimeout(() => {
-            audio.gameplay.play().catch(() => {});
-          }, 500);
+          console.log('Gameplay music blocked:', e);
         });
     }
   } catch (e) {
@@ -377,7 +387,7 @@ function playGameplayMusic() {
 }
 
 function stopGameplayMusic() {
-  if (!audio) return;
+  if (!audio || !audio.gameplay) return;
   try {
     audio.gameplay.pause();
     audio.gameplay.currentTime = 0;
@@ -385,29 +395,67 @@ function stopGameplayMusic() {
 }
 
 function playBossMusic() {
-  if (!audio) return;
+  if (!audio || !audio.boss) return;
+
+  // CRITICAL: Stop gameplay music first!
+  if (audio.gameplay) {
+    audio.gameplay.pause();
+    audio.gameplay.currentTime = 0;
+  }
+
   try {
     audio.boss.currentTime = 0;
-    audio.boss.play().catch(e => console.log('Boss music error:', e));
+    audio.boss.volume = 0.5;
+    audio.boss.muted = isMuted;
+
+    const playPromise = audio.boss.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => console.log('Boss music started'))
+        .catch(e => console.log('Boss music error:', e));
+    }
   } catch (e) {}
 }
 
 function stopBossMusic() {
-  if (!audio) return;
+  if (!audio || !audio.boss) return;
   try {
     audio.boss.pause();
     audio.boss.currentTime = 0;
   } catch (e) {}
 }
 
+// Pool of meow sounds for overlapping playback
+let meowPool = [];
+let meowPoolIndex = 0;
+const MEOW_POOL_SIZE = 6; // Allow up to 6 overlapping meows
+
+function initMeowPool() {
+  if (!audio || !audio.meows) return;
+  meowPool = [];
+  // Create pool by cycling through the 3 meow sounds
+  for (let i = 0; i < MEOW_POOL_SIZE; i++) {
+    const srcIndex = i % audio.meows.length;
+    const poolMeow = createAudioElement(audio.meows[srcIndex].src);
+    poolMeow.volume = 0.6;
+    poolMeow.preload = 'auto';
+    poolMeow.load();
+    meowPool.push(poolMeow);
+  }
+}
+
 function playRandomMeow() {
-  if (!audio) return;
+  if (isMuted) return;
+  if (meowPool.length === 0) return;
+
   try {
-    // Clone audio to allow overlapping sounds
-    const meow = audio.meows[Math.floor(Math.random() * audio.meows.length)];
-    const clone = meow.cloneNode();
-    clone.volume = 0.6;
-    clone.play().catch(() => {});
+    // Use pool for overlapping sounds
+    const meow = meowPool[meowPoolIndex];
+    meowPoolIndex = (meowPoolIndex + 1) % meowPool.length;
+
+    meow.currentTime = 0;
+    meow.volume = 0.6;
+    meow.play().catch(() => {});
   } catch (e) {}
 }
 
