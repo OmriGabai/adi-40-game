@@ -162,6 +162,9 @@ let audio = null;
 function createAudioElement(src) {
   const audio = new Audio();
   audio.preload = 'auto';
+  // iOS-specific attributes
+  audio.setAttribute('playsinline', '');
+  audio.setAttribute('webkit-playsinline', '');
   audio.src = src;
   return audio;
 }
@@ -331,28 +334,38 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 // Track audio unlock status for mobile
 let audioUnlocked = false;
 
+// iOS requires audio to be triggered directly from user gesture
+// We unlock by playing a silent moment immediately on first tap
 function initAudio() {
   if (audioUnlocked || !audio) return;
 
-  // Just unlock the existing preloaded audio - don't recreate!
-  const unlockAudio = (audioEl) => {
+  // On iOS, we need to play audio in the SAME call stack as user gesture
+  // Play and immediately pause each audio to "unlock" it
+  const allAudio = [audio.gameplay, audio.boss, audio.purr, ...audio.meows, ...meowPool];
+
+  allAudio.forEach(audioEl => {
     if (!audioEl) return;
-    const playPromise = audioEl.play();
-    if (playPromise) {
-      playPromise.then(() => {
+    try {
+      // Set volume to 0 for silent unlock
+      const originalVolume = audioEl.volume;
+      audioEl.volume = 0;
+      audioEl.play().then(() => {
         audioEl.pause();
         audioEl.currentTime = 0;
-      }).catch(() => {});
-    }
-  };
+        audioEl.volume = originalVolume;
+      }).catch(() => {
+        audioEl.volume = originalVolume;
+      });
+    } catch (e) {}
+  });
 
-  unlockAudio(audio.gameplay);
-  unlockAudio(audio.boss);
-  unlockAudio(audio.purr);
-  audio.meows.forEach(unlockAudio);
+  // Also resume AudioContext if suspended (for synth sounds)
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 
   audioUnlocked = true;
-  console.log('Audio unlocked');
+  console.log('Audio unlocked for iOS');
 }
 
 function playGameplayMusic() {
@@ -1108,6 +1121,21 @@ document.addEventListener('touchstart', (e) => {
   }
 }, { passive: false });
 
+// iOS audio unlock on first touch anywhere
+document.addEventListener('touchstart', function iosAudioUnlock() {
+  initAudio();
+  initSynthAudio();
+  // Remove listener after first touch
+  document.removeEventListener('touchstart', iosAudioUnlock);
+}, { once: true });
+
+// Also try on click for desktop
+document.addEventListener('click', function desktopAudioUnlock() {
+  initAudio();
+  initSynthAudio();
+  document.removeEventListener('click', desktopAudioUnlock);
+}, { once: true });
+
 // Initialize
 console.log("🎂 Adi vs The Big 4-0 - Game loaded!");
-console.log("Add Firebase config to enable online leaderboard.");
+console.log("Audio will unlock on first tap/click.");
