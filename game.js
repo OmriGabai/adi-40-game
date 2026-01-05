@@ -7,7 +7,7 @@
 // ============================================
 
 const CONFIG = {
-  gameDuration: 20,
+  gameDuration: 25,
   pitzDuration: 6,
   pitzTriggerTime: 5, // Pitz appears when timer hits this
   spawnInterval: 400, // ms between spawns (faster = more chaos!)
@@ -153,53 +153,58 @@ function toggleMute() {
 }
 
 // ============================================
-// SOUND SYSTEM (Audio Files)
+// SOUND SYSTEM (Web Audio API - iOS compatible)
 // ============================================
 
-// Audio elements - create fresh instances to avoid caching issues
+let audioCtx = null;
+let audioBuffers = {
+  gameplay: null,
+  meows: [],
+  purr: null
+};
+let currentGameplaySource = null;
+let audioLoaded = false;
+
+// Initialize Web Audio Context
+function initWebAudio() {
+  if (audioCtx) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new AudioContext();
+}
+
+// Load audio file as buffer
+async function loadAudioBuffer(url) {
+  try {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuffer);
+  } catch (e) {
+    console.log('Failed to load audio:', url, e);
+    return null;
+  }
+}
+
+// Load all audio buffers
+async function loadAllAudio() {
+  initWebAudio();
+
+  const [gameplay, meow1, meow2, meow3, purr] = await Promise.all([
+    loadAudioBuffer('audio/gameplay-342069.mp3'),
+    loadAudioBuffer('audio/cat-meow-401729.mp3'),
+    loadAudioBuffer('audio/cat-meow-405456.mp3'),
+    loadAudioBuffer('audio/cat-meow-85175.mp3'),
+    loadAudioBuffer('audio/cat-purr-361421.mp3')
+  ]);
+
+  audioBuffers.gameplay = gameplay;
+  audioBuffers.meows = [meow1, meow2, meow3].filter(m => m !== null);
+  audioBuffers.purr = purr;
+  audioLoaded = true;
+  console.log('Web Audio loaded');
+}
+
+// Legacy audio object for compatibility (will be null)
 let audio = null;
-
-function createAudioElement(src) {
-  const audio = new Audio();
-  audio.preload = 'auto';
-  // iOS-specific attributes
-  audio.setAttribute('playsinline', '');
-  audio.setAttribute('webkit-playsinline', '');
-  audio.src = src;
-  return audio;
-}
-
-function createAudioElements() {
-  audio = {
-    gameplay: createAudioElement('audio/gameplay-342069.mp3'),
-    boss: createAudioElement('audio/boss-stage.mp3'),
-    meows: [
-      createAudioElement('audio/cat-meow-401729.mp3'),
-      createAudioElement('audio/cat-meow-405456.mp3'),
-      createAudioElement('audio/cat-meow-85175.mp3')
-    ],
-    purr: createAudioElement('audio/cat-purr-361421.mp3')
-  };
-
-  // Configure audio settings
-  audio.gameplay.loop = true;
-  audio.gameplay.volume = 0.4;
-  audio.boss.loop = true;
-  audio.boss.volume = 0.5;
-  audio.purr.volume = 0.7;
-  audio.meows.forEach(m => m.volume = 0.6);
-
-  // Force load all audio into memory
-  const allAudio = [audio.gameplay, audio.boss, audio.purr, ...audio.meows];
-  allAudio.forEach(a => {
-    a.load();
-    // Pre-buffer by seeking to start
-    a.currentTime = 0;
-  });
-}
-
-// Initialize on page load
-createAudioElements();
 
 // ============================================
 // RESOURCE PRELOADING
@@ -237,36 +242,6 @@ function preloadImage(src) {
   });
 }
 
-function preloadAudio(audioElement) {
-  return new Promise((resolve) => {
-    // If already loaded, resolve immediately
-    if (audioElement.readyState >= 4) {
-      resolve(true);
-      return;
-    }
-
-    // Try to fetch the audio file to ensure it's cached
-    const src = audioElement.src;
-    if (src) {
-      fetch(src)
-        .then(response => response.blob())
-        .then(() => {
-          // Force reload from cache
-          audioElement.load();
-          resolve(true);
-        })
-        .catch(() => resolve(false));
-    }
-
-    // Also listen for canplaythrough as backup
-    audioElement.addEventListener('canplaythrough', () => resolve(true), { once: true });
-    audioElement.addEventListener('error', () => resolve(false), { once: true });
-
-    // Timeout fallback
-    setTimeout(() => resolve(true), 8000);
-  });
-}
-
 async function preloadAllResources() {
   const loadingScreen = document.getElementById('loading-screen');
   const loaderText = loadingScreen?.querySelector('.loader-text');
@@ -291,23 +266,14 @@ async function preloadAllResources() {
     })
   );
 
-  // Preload audio
-  const audioPromises = [];
-  if (audio) {
-    audioPromises.push(preloadAudio(audio.gameplay).then(r => { updateProgress(); return r; }));
-    audioPromises.push(preloadAudio(audio.boss).then(r => { updateProgress(); return r; }));
-    audioPromises.push(preloadAudio(audio.purr).then(r => { updateProgress(); return r; }));
-    audio.meows.forEach(m => {
-      audioPromises.push(preloadAudio(m).then(r => { updateProgress(); return r; }));
-    });
-  }
+  // Wait for images first
+  await Promise.all(imagePromises);
 
-  await Promise.all([...imagePromises, ...audioPromises]);
+  // Load audio with Web Audio API (5 files)
+  if (loaderText) loaderText.textContent = 'Loading audio...';
+  await loadAllAudio();
 
   resourcesLoaded = true;
-
-  // Initialize meow pool for overlapping sounds
-  initMeowPool();
 
   // Hide loading screen and show start screen
   if (loadingScreen) {
@@ -337,194 +303,110 @@ let audioUnlocked = false;
 // iOS requires audio to be triggered directly from user gesture
 // We unlock by playing a silent moment immediately on first tap
 function initAudio() {
-  if (audioUnlocked || !audio) return;
+  if (audioUnlocked) return;
 
-  // On iOS, we need to play audio in the SAME call stack as user gesture
-  // Play and immediately pause each audio to "unlock" it
-  const allAudio = [audio.gameplay, audio.boss, audio.purr, ...audio.meows, ...meowPool];
-
-  allAudio.forEach(audioEl => {
-    if (!audioEl) return;
-    try {
-      // Set volume to 0 for silent unlock
-      const originalVolume = audioEl.volume;
-      audioEl.volume = 0;
-      audioEl.play().then(() => {
-        audioEl.pause();
-        audioEl.currentTime = 0;
-        audioEl.volume = originalVolume;
-      }).catch(() => {
-        audioEl.volume = originalVolume;
-      });
-    } catch (e) {}
-  });
-
-  // Also resume AudioContext if suspended (for synth sounds)
+  // Resume AudioContext on user gesture (required for iOS)
   if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    audioCtx.resume().then(() => {
+      console.log('AudioContext resumed');
+    });
   }
 
   audioUnlocked = true;
   console.log('Audio unlocked for iOS');
 }
 
+// Play a buffer with Web Audio API
+function playBuffer(buffer, loop = false, volume = 1.0) {
+  if (!audioCtx || !buffer || isMuted) return null;
+
+  // Resume context if suspended (iOS requirement)
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  const source = audioCtx.createBufferSource();
+  const gainNode = audioCtx.createGain();
+
+  source.buffer = buffer;
+  source.loop = loop;
+  gainNode.gain.value = volume;
+
+  source.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  source.start(0);
+
+  return { source, gainNode };
+}
+
 function playGameplayMusic() {
-  if (!audio || !audio.gameplay) {
-    console.log('Audio not initialized');
-    return;
-  }
+  if (!audioBuffers.gameplay || isMuted) return;
 
-  // Make sure boss music is stopped first
-  if (audio.boss) {
-    audio.boss.pause();
-    audio.boss.currentTime = 0;
-  }
+  // Stop existing gameplay music
+  stopGameplayMusic();
 
-  try {
-    audio.gameplay.currentTime = 0;
-    audio.gameplay.volume = 0.4;
-    audio.gameplay.muted = isMuted;
-
-    const playPromise = audio.gameplay.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => console.log('Gameplay music started'))
-        .catch(e => {
-          console.log('Gameplay music blocked:', e);
-        });
-    }
-  } catch (e) {
-    console.log('Gameplay music exception:', e);
+  const result = playBuffer(audioBuffers.gameplay, true, 0.4);
+  if (result) {
+    currentGameplaySource = result;
+    console.log('Gameplay music started (Web Audio)');
   }
 }
 
 function stopGameplayMusic() {
-  if (!audio || !audio.gameplay) return;
-  try {
-    audio.gameplay.pause();
-    audio.gameplay.currentTime = 0;
-  } catch (e) {}
-}
-
-function playBossMusic() {
-  if (!audio || !audio.boss) return;
-
-  // CRITICAL: Stop gameplay music first!
-  if (audio.gameplay) {
-    audio.gameplay.pause();
-    audio.gameplay.currentTime = 0;
-  }
-
-  try {
-    audio.boss.currentTime = 0;
-    audio.boss.volume = 0.5;
-    audio.boss.muted = isMuted;
-
-    const playPromise = audio.boss.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => console.log('Boss music started'))
-        .catch(e => console.log('Boss music error:', e));
-    }
-  } catch (e) {}
-}
-
-function stopBossMusic() {
-  if (!audio || !audio.boss) return;
-  try {
-    audio.boss.pause();
-    audio.boss.currentTime = 0;
-  } catch (e) {}
-}
-
-// Pool of meow sounds for overlapping playback
-let meowPool = [];
-let meowPoolIndex = 0;
-const MEOW_POOL_SIZE = 6; // Allow up to 6 overlapping meows
-
-function initMeowPool() {
-  if (!audio || !audio.meows) return;
-  meowPool = [];
-  // Create pool by cycling through the 3 meow sounds
-  for (let i = 0; i < MEOW_POOL_SIZE; i++) {
-    const srcIndex = i % audio.meows.length;
-    const poolMeow = createAudioElement(audio.meows[srcIndex].src);
-    poolMeow.volume = 0.6;
-    poolMeow.preload = 'auto';
-    poolMeow.load();
-    meowPool.push(poolMeow);
+  if (currentGameplaySource) {
+    try {
+      currentGameplaySource.source.stop();
+    } catch (e) {}
+    currentGameplaySource = null;
   }
 }
+
+// Not used but kept for compatibility
+function playBossMusic() {}
+function stopBossMusic() {}
+
+// Meow counter for variety
+let meowIndex = 0;
 
 function playRandomMeow() {
-  if (isMuted) return;
-  if (meowPool.length === 0) return;
+  if (isMuted || !audioBuffers.meows.length) return;
 
-  try {
-    // Use pool for overlapping sounds
-    const meow = meowPool[meowPoolIndex];
-    meowPoolIndex = (meowPoolIndex + 1) % meowPool.length;
-
-    meow.currentTime = 0;
-    meow.volume = 0.6;
-    meow.play().catch(() => {});
-  } catch (e) {}
+  const buffer = audioBuffers.meows[meowIndex % audioBuffers.meows.length];
+  meowIndex++;
+  playBuffer(buffer, false, 0.6);
 }
 
+let currentPurrSource = null;
+
 function playPurrSound() {
-  if (!audio) return;
-  try {
-    audio.purr.volume = 0.7;
-    audio.purr.currentTime = 0;
-    audio.purr.play().catch(e => console.log('Purr error:', e));
+  if (!audioBuffers.purr || isMuted) return;
+
+  const result = playBuffer(audioBuffers.purr, false, 0.7);
+  if (result) {
+    currentPurrSource = result;
 
     // Fade out after 4 seconds
     setTimeout(() => {
-      fadeOutAudio(audio.purr, 2000);
+      if (currentPurrSource && currentPurrSource.gainNode) {
+        const gain = currentPurrSource.gainNode.gain;
+        gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+      }
     }, 4000);
-  } catch (e) {}
-}
-
-function fadeOutAudio(audioEl, duration) {
-  if (!audioEl) return;
-  const startVolume = audioEl.volume;
-  const steps = 20;
-  const stepTime = duration / steps;
-  const volumeStep = startVolume / steps;
-
-  let currentStep = 0;
-  const fadeInterval = setInterval(() => {
-    currentStep++;
-    audioEl.volume = Math.max(0, startVolume - (volumeStep * currentStep));
-    if (currentStep >= steps) {
-      clearInterval(fadeInterval);
-      audioEl.pause();
-      audioEl.volume = startVolume; // Reset for next play
-    }
-  }, stepTime);
+  }
 }
 
 function stopAllAudio() {
-  if (!audio) return;
-  try {
-    // Stop and reset all audio tracks
-    [audio.gameplay, audio.boss, audio.purr].forEach(track => {
-      if (track) {
-        track.pause();
-        track.currentTime = 0;
-        // Reset volume in case it was fading
-        track.volume = track === audio.gameplay ? 0.4 :
-                       track === audio.boss ? 0.5 : 0.7;
-      }
-    });
-  } catch (e) {
-    console.log('Error stopping audio:', e);
+  stopGameplayMusic();
+  if (currentPurrSource) {
+    try {
+      currentPurrSource.source.stop();
+    } catch (e) {}
+    currentPurrSource = null;
   }
 }
 
 // Simple synthesized sounds for tap feedback (non-blocking)
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
+// (audioCtx already defined above)
 
 function initSynthAudio() {
   if (!audioCtx) {
