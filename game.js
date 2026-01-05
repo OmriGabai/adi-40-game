@@ -42,7 +42,7 @@ const CHARACTERS = {
   bad: [
     { image: 'pics/forty.svg', name: '40', type: 'bad', points: CONFIG.points.bad, message: 'NOOOOO! The dreaded 40!' },
     { image: 'pics/glasses.svg', name: 'Glasses', type: 'bad', points: CONFIG.points.bad, message: "Bifocals of Doom!" },
-    { image: 'pics/grayhair.svg', name: 'Gray Hair', type: 'bad', points: CONFIG.points.bad, message: 'Distinguished wisdom!' },
+    { image: 'pics/grayhair.svg', name: 'Grandma', type: 'bad', points: CONFIG.points.bad, message: 'Not yet grandma!' },
     { image: 'pics/pills.svg', name: 'Vitamins', type: 'bad', points: CONFIG.points.bad, message: 'Vitamins already?!' },
   ],
   family: [
@@ -126,13 +126,85 @@ const elements = {
 };
 
 // ============================================
-// SOUND SYSTEM (Web Audio API)
+// SOUND SYSTEM (Audio Files)
 // ============================================
 
+// Audio elements
+const audio = {
+  gameplay: new Audio('audio/gameplay-342069.mp3'),
+  boss: new Audio('audio/boss-stage.mp3'),
+  meows: [
+    new Audio('audio/cat-meow-401729.mp3'),
+    new Audio('audio/cat-meow-405456.mp3'),
+    new Audio('audio/cat-meow-85175.mp3')
+  ],
+  purr: new Audio('audio/cat-purr-361421.mp3')
+};
+
+// Configure audio settings
+audio.gameplay.loop = true;
+audio.gameplay.volume = 0.4;
+audio.boss.loop = true;
+audio.boss.volume = 0.5;
+audio.purr.volume = 0.7;
+audio.meows.forEach(m => m.volume = 0.6);
+
+// Track audio unlock status for mobile
+let audioUnlocked = false;
+
+function initAudio() {
+  if (audioUnlocked) return;
+
+  // Unlock all audio elements on first user interaction
+  const unlockPromises = [
+    audio.gameplay.play().then(() => audio.gameplay.pause()).catch(() => {}),
+    audio.boss.play().then(() => audio.boss.pause()).catch(() => {}),
+    audio.purr.play().then(() => audio.purr.pause()).catch(() => {}),
+    ...audio.meows.map(m => m.play().then(() => m.pause()).catch(() => {}))
+  ];
+
+  Promise.all(unlockPromises).then(() => {
+    audioUnlocked = true;
+    console.log('Audio unlocked');
+  });
+}
+
+function playGameplayMusic() {
+  audio.gameplay.currentTime = 0;
+  audio.gameplay.play().catch(e => console.log('Gameplay music error:', e));
+}
+
+function stopGameplayMusic() {
+  audio.gameplay.pause();
+  audio.gameplay.currentTime = 0;
+}
+
+function playBossMusic() {
+  audio.boss.currentTime = 0;
+  audio.boss.play().catch(e => console.log('Boss music error:', e));
+}
+
+function stopBossMusic() {
+  audio.boss.pause();
+  audio.boss.currentTime = 0;
+}
+
+function playRandomMeow() {
+  const meow = audio.meows[Math.floor(Math.random() * audio.meows.length)];
+  meow.currentTime = 0;
+  meow.play().catch(e => console.log('Meow error:', e));
+}
+
+function playPurrSound() {
+  audio.purr.currentTime = 0;
+  audio.purr.play().catch(e => console.log('Purr error:', e));
+}
+
+// Simple synthesized sounds for tap feedback (non-blocking)
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
-function initAudio() {
+function initSynthAudio() {
   if (!audioCtx) {
     audioCtx = new AudioContext();
   }
@@ -143,26 +215,23 @@ function initAudio() {
 
 function playTone(frequency, duration, type = 'sine') {
   if (!audioCtx) return;
-
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  oscillator.frequency.value = frequency;
-  oscillator.type = type;
-
-  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-
-  oscillator.start(audioCtx.currentTime);
-  oscillator.stop(audioCtx.currentTime + duration);
+  try {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration);
+  } catch (e) {}
 }
 
 function playGoodSound() {
-  playTone(523, 0.1); // C5
-  setTimeout(() => playTone(659, 0.1), 50); // E5
+  playTone(523, 0.1);
+  setTimeout(() => playTone(659, 0.1), 50);
 }
 
 function playBadSound() {
@@ -172,34 +241,7 @@ function playBadSound() {
 function playFamilySound() {
   playTone(523, 0.08);
   setTimeout(() => playTone(659, 0.08), 60);
-  setTimeout(() => playTone(784, 0.15), 120); // G5
-}
-
-function playMeowSound() {
-  // Meow-like sound
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.frequency.setValueAtTime(700, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.15);
-
-  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-
-  osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + 0.2);
-}
-
-function playPurrSound() {
-  // Longer purr-like sound
-  for (let i = 0; i < 8; i++) {
-    setTimeout(() => {
-      playTone(80 + Math.random() * 40, 0.15, 'sine');
-    }, i * 100);
-  }
+  setTimeout(() => playTone(784, 0.15), 120);
 }
 
 // ============================================
@@ -372,12 +414,16 @@ function startGame() {
   }
 
   initAudio();
+  initSynthAudio();
   resetGame();
 
   gameState.playerName = name;
   gameState.isPlaying = true;
 
   showScreen('game');
+
+  // Start background music
+  playGameplayMusic();
 
   // Start timer
   gameState.timerInterval = setInterval(() => {
@@ -406,6 +452,11 @@ function startPitzRound() {
   // Stop spawning
   clearInterval(gameState.spawnInterval);
   clearInterval(gameState.timerInterval);
+
+  // Switch music: stop gameplay, play meow, start boss music
+  stopGameplayMusic();
+  playRandomMeow();
+  setTimeout(() => playBossMusic(), 300);
 
   // Clear holes
   gameState.holes = Array(9).fill(null);
@@ -443,8 +494,8 @@ function handlePitzTap() {
   elements.pitzCat.classList.add('happy');
   setTimeout(() => elements.pitzCat.classList.remove('happy'), 100);
 
-  // Play meow
-  playMeowSound();
+  // Play random meow
+  playRandomMeow();
 
   // Check milestones
   const milestone = PITZ_MESSAGES.milestones[gameState.pitzTaps];
@@ -466,7 +517,8 @@ function endPitzRound() {
   gameState.isPitzRound = false;
   gameState.isPlaying = false;
 
-  // Play purr
+  // Stop boss music and play purr
+  stopBossMusic();
   playPurrSound();
 
   // Calculate final score
