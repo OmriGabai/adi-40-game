@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Adi vs The Big 4-0!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <h1>🎂 ADI VS THE BIG 4-0 🎂</h1>
+    <p class="subtitle">Help Adi survive turning 40!</p>
+
+    <div class="instructions">
+      <p>✅ Tap <span class="good">gifts & family</span> for points</p>
+      <p>❌ Avoid <span class="bad">signs of aging</span>!</p>
+      <p>⚠️ BEWARE OF PITZ THE CAT ⚠️</p>
+    </div>
+
+    <div class="name-input">
+      <input type="text" id="player-name" placeholder="Enter your name" maxlength="15">
+    </div>
+
+    <button id="start-btn" class="btn-primary">START GAME</button>
+
+    <button id="leaderboard-btn" class="btn-secondary">View Leaderboard</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <div class="score-display">
+        <span class="label">Score</span>
+        <span id="score">0</span>
+      </div>
+      <div class="timer-display">
+        <span class="label">Time</span>
+        <span id="timer">60</span>
+      </div>
+    </div>
+
+    <div id="message-popup" class="message-popup"></div>
+
+    <div id="game-board" class="game-board">
+      <div class="hole" data-hole="0"><div class="character"></div></div>
+      <div class="hole" data-hole="1"><div class="character"></div></div>
+      <div class="hole" data-hole="2"><div class="character"></div></div>
+      <div class="hole" data-hole="3"><div class="character"></div></div>
+      <div class="hole" data-hole="4"><div class="character"></div></div>
+      <div class="hole" data-hole="5"><div class="character"></div></div>
+      <div class="hole" data-hole="6"><div class="character"></div></div>
+      <div class="hole" data-hole="7"><div class="character"></div></div>
+      <div class="hole" data-hole="8"><div class="character"></div></div>
+    </div>
+  </div>
+
+  <!-- PITZ BONUS ROUND SCREEN -->
+  <div id="pitz-screen" class="screen">
+    <div class="pitz-header">
+      <h2>🐱 PITZ APPEARS! 🐱</h2>
+      <p>Tap the cat as fast as you can!</p>
+      <div class="pitz-timer">
+        <span id="pitz-time">5</span>s
+      </div>
+    </div>
+
+    <div id="pitz-taps" class="pitz-taps">0</div>
+    <div id="pitz-message" class="pitz-message">TAP TAP TAP!</div>
+
+    <div id="pitz-cat" class="pitz-cat">
+      <span class="cat-emoji">🐱</span>
+      <span class="cat-name">Pitz</span>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="screen">
+    <h2 id="end-title">🎉 GAME OVER! 🎉</h2>
+    <p id="end-message"></p>
+
+    <div class="final-scores">
+      <div class="score-row">
+        <span>Game Score:</span>
+        <span id="final-game-score">0</span>
+      </div>
+      <div class="score-row">
+        <span>Pitz Bonus:</span>
+        <span id="final-pitz-score">0</span>
+      </div>
+      <div class="score-row total">
+        <span>TOTAL:</span>
+        <span id="final-total-score">0</span>
+      </div>
+    </div>
+
+    <div id="saving-indicator" class="saving">Saving score...</div>
+
+    <button id="play-again-btn" class="btn-primary">PLAY AGAIN</button>
+    <button id="end-leaderboard-btn" class="btn-secondary">View Leaderboard</button>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboard-screen" class="screen">
+    <h2>🏆 LEADERBOARD 🏆</h2>
+
+    <div id="leaderboard-list" class="leaderboard-list">
+      <p class="loading">Loading scores...</p>
+    </div>
+
+    <button id="back-btn" class="btn-secondary">Back</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
