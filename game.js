@@ -129,25 +129,38 @@ const elements = {
 // SOUND SYSTEM (Audio Files)
 // ============================================
 
-// Audio elements
-const audio = {
-  gameplay: new Audio('audio/gameplay-342069.mp3'),
-  boss: new Audio('audio/boss-stage.mp3'),
-  meows: [
-    new Audio('audio/cat-meow-401729.mp3'),
-    new Audio('audio/cat-meow-405456.mp3'),
-    new Audio('audio/cat-meow-85175.mp3')
-  ],
-  purr: new Audio('audio/cat-purr-361421.mp3')
-};
+// Audio elements - create fresh instances to avoid caching issues
+let audio = null;
 
-// Configure audio settings
-audio.gameplay.loop = true;
-audio.gameplay.volume = 0.4;
-audio.boss.loop = true;
-audio.boss.volume = 0.5;
-audio.purr.volume = 0.7;
-audio.meows.forEach(m => m.volume = 0.6);
+function createAudioElements() {
+  audio = {
+    gameplay: new Audio('audio/gameplay-342069.mp3'),
+    boss: new Audio('audio/boss-stage.mp3'),
+    meows: [
+      new Audio('audio/cat-meow-401729.mp3'),
+      new Audio('audio/cat-meow-405456.mp3'),
+      new Audio('audio/cat-meow-85175.mp3')
+    ],
+    purr: new Audio('audio/cat-purr-361421.mp3')
+  };
+
+  // Configure audio settings
+  audio.gameplay.loop = true;
+  audio.gameplay.volume = 0.4;
+  audio.boss.loop = true;
+  audio.boss.volume = 0.5;
+  audio.purr.volume = 0.7;
+  audio.meows.forEach(m => m.volume = 0.6);
+
+  // Preload all audio
+  audio.gameplay.load();
+  audio.boss.load();
+  audio.purr.load();
+  audio.meows.forEach(m => m.load());
+}
+
+// Initialize on page load
+createAudioElements();
 
 // Track audio unlock status for mobile
 let audioUnlocked = false;
@@ -155,49 +168,75 @@ let audioUnlocked = false;
 function initAudio() {
   if (audioUnlocked) return;
 
-  // Unlock all audio elements on first user interaction
-  const unlockPromises = [
-    audio.gameplay.play().then(() => audio.gameplay.pause()).catch(() => {}),
-    audio.boss.play().then(() => audio.boss.pause()).catch(() => {}),
-    audio.purr.play().then(() => audio.purr.pause()).catch(() => {}),
-    ...audio.meows.map(m => m.play().then(() => m.pause()).catch(() => {}))
-  ];
+  // Recreate audio elements to ensure fresh state
+  createAudioElements();
 
-  Promise.all(unlockPromises).then(() => {
-    audioUnlocked = true;
-    console.log('Audio unlocked');
-  });
+  // Try to play and immediately pause to unlock audio on mobile
+  const unlockAudio = (audioEl) => {
+    audioEl.play().then(() => {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }).catch(() => {});
+  };
+
+  unlockAudio(audio.gameplay);
+  unlockAudio(audio.boss);
+  unlockAudio(audio.purr);
+  audio.meows.forEach(unlockAudio);
+
+  audioUnlocked = true;
+  console.log('Audio initialized');
 }
 
 function playGameplayMusic() {
-  audio.gameplay.currentTime = 0;
-  audio.gameplay.play().catch(e => console.log('Gameplay music error:', e));
+  if (!audio) return;
+  try {
+    audio.gameplay.currentTime = 0;
+    audio.gameplay.play().catch(e => console.log('Gameplay music error:', e));
+  } catch (e) {}
 }
 
 function stopGameplayMusic() {
-  audio.gameplay.pause();
-  audio.gameplay.currentTime = 0;
+  if (!audio) return;
+  try {
+    audio.gameplay.pause();
+    audio.gameplay.currentTime = 0;
+  } catch (e) {}
 }
 
 function playBossMusic() {
-  audio.boss.currentTime = 0;
-  audio.boss.play().catch(e => console.log('Boss music error:', e));
+  if (!audio) return;
+  try {
+    audio.boss.currentTime = 0;
+    audio.boss.play().catch(e => console.log('Boss music error:', e));
+  } catch (e) {}
 }
 
 function stopBossMusic() {
-  audio.boss.pause();
-  audio.boss.currentTime = 0;
+  if (!audio) return;
+  try {
+    audio.boss.pause();
+    audio.boss.currentTime = 0;
+  } catch (e) {}
 }
 
 function playRandomMeow() {
-  const meow = audio.meows[Math.floor(Math.random() * audio.meows.length)];
-  meow.currentTime = 0;
-  meow.play().catch(e => console.log('Meow error:', e));
+  if (!audio) return;
+  try {
+    // Clone audio to allow overlapping sounds
+    const meow = audio.meows[Math.floor(Math.random() * audio.meows.length)];
+    const clone = meow.cloneNode();
+    clone.volume = 0.6;
+    clone.play().catch(() => {});
+  } catch (e) {}
 }
 
 function playPurrSound() {
-  audio.purr.currentTime = 0;
-  audio.purr.play().catch(e => console.log('Purr error:', e));
+  if (!audio) return;
+  try {
+    audio.purr.currentTime = 0;
+    audio.purr.play().catch(e => console.log('Purr error:', e));
+  } catch (e) {}
 }
 
 // Simple synthesized sounds for tap feedback (non-blocking)
@@ -375,6 +414,13 @@ function hideCharacter(holeIndex) {
   const holeEl = elements.holes[holeIndex];
   const charEl = holeEl.querySelector('.character');
   charEl.classList.remove('visible');
+  // Clear content after animation
+  setTimeout(() => {
+    if (!charEl.classList.contains('visible')) {
+      charEl.innerHTML = '';
+      charEl.className = 'character';
+    }
+  }, 200);
 }
 
 function handleHoleTap(holeIndex) {

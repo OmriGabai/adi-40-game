@@ -569,14 +569,14 @@ body::before {
   background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(230, 230, 240, 0.9) 100%);
 }
 
-/* Family members wiggle */
-.character.family {
-  animation: wiggle 0.4s ease-in-out infinite;
+/* Family members wiggle - uses different property to avoid transform conflicts */
+.character.family.visible {
+  animation: familyWiggle 0.3s ease-in-out infinite;
 }
 
-@keyframes wiggle {
-  0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
-  50% { transform: translateY(0) rotate(2deg) scale(1.02); }
+@keyframes familyWiggle {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
 }
 
 /* Tap feedback */
@@ -653,8 +653,8 @@ body::before {
 }
 
 .pitz-cat .cat-photo {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 50%;
   border: 4px solid white;
@@ -663,9 +663,7 @@ body::before {
 }
 
 .pitz-cat .cat-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #1a1a2e;
+  display: none;
 }
 
 .pitz-cat.happy {
