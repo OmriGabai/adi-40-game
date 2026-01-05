@@ -10,11 +10,11 @@
 <body>
   <!-- START SCREEN -->
   <div id="start-screen" class="screen active">
-    <!-- Floating particles -->
+    <!-- Floating particles including Adi -->
     <div class="particles">
       <span class="particle">🎈</span>
       <span class="particle">🎉</span>
-      <span class="particle">✨</span>
+      <img src="pics/adi.jpg" alt="Adi" class="particle adi-float" onerror="this.style.display='none'">
       <span class="particle">🎊</span>
       <span class="particle">⭐</span>
       <span class="particle">🎈</span>
@@ -23,7 +23,7 @@
     <div class="logo-container">
       <div class="logo-glow"></div>
       <h1>ADI VS THE BIG 4-0</h1>
-      <div class="logo-subtitle">🎂 BIRTHDAY EDITION 🎂</div>
+      <div class="logo-subtitle">🎂 מזל טוב • MAZAL TOV 🎂</div>
     </div>
     <p class="subtitle">Help Adi survive turning 40!</p>
 
@@ -40,6 +40,48 @@
     <button id="start-btn" class="btn-primary">START GAME</button>
 
     <button id="leaderboard-btn" class="btn-secondary">View Leaderboard</button>
+  </div>
+
+  <!-- PRE-GAME COUNTDOWN SCREEN -->
+  <div id="countdown-screen" class="screen">
+    <div class="countdown-content">
+      <div class="countdown-section good-section">
+        <h3>✅ TAP FOR POINTS!</h3>
+        <div class="item-row">
+          <img src="pics/gift.svg" alt="Gift" class="countdown-item">
+          <img src="pics/cake.svg" alt="Cake" class="countdown-item">
+          <img src="pics/balloon.svg" alt="Balloon" class="countdown-item">
+        </div>
+        <div class="item-row">
+          <img src="pics/gal.jpg" alt="Gal" class="countdown-item family">
+          <img src="pics/bar.jpg" alt="Bar" class="countdown-item family">
+          <img src="pics/liv.jpg" alt="Liv" class="countdown-item family">
+          <img src="pics/eran.JPG" alt="Eran" class="countdown-item family">
+        </div>
+      </div>
+
+      <div class="countdown-section bad-section">
+        <h3>❌ AVOID THESE!</h3>
+        <div class="item-row">
+          <img src="pics/forty.svg" alt="40" class="countdown-item">
+          <img src="pics/glasses.svg" alt="Glasses" class="countdown-item">
+          <img src="pics/grayhair.svg" alt="Grandma" class="countdown-item">
+          <img src="pics/pills.svg" alt="Pills" class="countdown-item">
+        </div>
+      </div>
+
+      <div id="countdown-text" class="countdown-text">GET READY!</div>
+    </div>
+  </div>
+
+  <!-- PRE-PITZ COUNTDOWN SCREEN -->
+  <div id="pitz-countdown-screen" class="screen">
+    <div class="countdown-content">
+      <h2 class="pitz-incoming">🐱 PITZ INCOMING! 🐱</h2>
+      <img src="pics/pitz.jpg" alt="Pitz" class="pitz-preview">
+      <p class="pitz-instruction">TAP AS FAST AS YOU CAN!</p>
+      <div id="pitz-countdown-text" class="countdown-text">GET READY!</div>
+    </div>
   </div>
 
   <!-- GAME SCREEN -->

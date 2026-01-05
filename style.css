@@ -105,6 +105,35 @@ body::before {
 .particle:nth-child(5) { left: 80%; animation-delay: 3s; animation-duration: 15s; }
 .particle:nth-child(6) { left: 95%; animation-delay: 5s; animation-duration: 10s; }
 
+/* Adi's floating picture */
+.particle.adi-float {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  animation: adiFloat 8s ease-in-out infinite;
+  left: 50%;
+  opacity: 0.9;
+}
+
+@keyframes adiFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 0.9; }
+  50% {
+    transform: translateY(40vh) rotate(180deg) scale(1.2);
+  }
+  90% { opacity: 0.9; }
+  100% {
+    transform: translateY(-100px) rotate(360deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
 @keyframes particleFloat {
   0% {
     transform: translateY(100vh) rotate(0deg) scale(1);
@@ -784,4 +813,107 @@ body::before {
   text-align: center;
   opacity: 0.7;
   padding: 20px;
+}
+
+/* ============================================
+   COUNTDOWN SCREENS
+   ============================================ */
+
+#countdown-screen,
+#pitz-countdown-screen {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.countdown-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.countdown-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 15px;
+  width: 100%;
+  text-align: center;
+}
+
+.countdown-section h3 {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.good-section h3 {
+  color: #4ade80;
+}
+
+.bad-section h3 {
+  color: #f87171;
+}
+
+.item-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.countdown-item {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  background: white;
+}
+
+.countdown-item.family {
+  border-color: #fbbf24;
+}
+
+.countdown-text {
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+  animation: countdownPulse 0.5s ease-in-out infinite;
+  margin-top: 20px;
+}
+
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Pitz countdown specific */
+.pitz-incoming {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  animation: warningPulse 0.5s ease-in-out infinite;
+}
+
+.pitz-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #fbbf24;
+  box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+  animation: pitzBounce 0.5s ease-in-out infinite;
+}
+
+@keyframes pitzBounce {
+  0%, 100% { transform: scale(1) rotate(-3deg); }
+  50% { transform: scale(1.05) rotate(3deg); }
+}
+
+.pitz-instruction {
+  font-size: 1.2rem;
+  color: #e2e8f0;
+  margin-top: 10px;
 }

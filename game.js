@@ -96,11 +96,15 @@ const gameState = {
 const elements = {
   screens: {
     start: document.getElementById('start-screen'),
+    countdown: document.getElementById('countdown-screen'),
+    pitzCountdown: document.getElementById('pitz-countdown-screen'),
     game: document.getElementById('game-screen'),
     pitz: document.getElementById('pitz-screen'),
     end: document.getElementById('end-screen'),
     leaderboard: document.getElementById('leaderboard-screen')
   },
+  countdownText: document.getElementById('countdown-text'),
+  pitzCountdownText: document.getElementById('pitz-countdown-text'),
   playerName: document.getElementById('player-name'),
   startBtn: document.getElementById('start-btn'),
   leaderboardBtn: document.getElementById('leaderboard-btn'),
@@ -466,6 +470,35 @@ function handleHoleTap(holeIndex) {
   hideCharacter(holeIndex);
 }
 
+// ============================================
+// COUNTDOWN FUNCTIONS
+// ============================================
+
+function runCountdown(textElement, callback) {
+  const steps = [
+    { text: 'READY...', delay: 1000 },
+    { text: 'SET...', delay: 1000 },
+    { text: 'GO!', delay: 500 }
+  ];
+
+  let stepIndex = 0;
+
+  function nextStep() {
+    if (stepIndex < steps.length) {
+      textElement.textContent = steps[stepIndex].text;
+      setTimeout(() => {
+        stepIndex++;
+        nextStep();
+      }, steps[stepIndex].delay);
+    } else {
+      callback();
+    }
+  }
+
+  // Start with initial display, then countdown
+  setTimeout(nextStep, 1500); // Show instructions for 1.5 seconds first
+}
+
 function startGame() {
   const name = elements.playerName.value.trim();
   if (!name) {
@@ -480,28 +513,35 @@ function startGame() {
   resetGame();
 
   gameState.playerName = name;
-  gameState.isPlaying = true;
 
-  showScreen('game');
+  // Show countdown screen first
+  showScreen('countdown');
+  elements.countdownText.textContent = 'GET READY!';
 
-  // Start background music (with small delay to ensure audio is ready)
-  setTimeout(() => {
-    playGameplayMusic();
-  }, 100);
+  runCountdown(elements.countdownText, () => {
+    // Now actually start the game
+    gameState.isPlaying = true;
+    showScreen('game');
 
-  // Start timer
-  gameState.timerInterval = setInterval(() => {
-    gameState.timeLeft--;
-    updateUI();
+    // Start background music
+    setTimeout(() => {
+      playGameplayMusic();
+    }, 100);
 
-    if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
-      startPitzRound();
-    }
-  }, 1000);
+    // Start timer
+    gameState.timerInterval = setInterval(() => {
+      gameState.timeLeft--;
+      updateUI();
 
-  // Start spawning
-  gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
-  spawnCharacter(); // Immediate first spawn
+      if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
+        startPitzRound();
+      }
+    }, 1000);
+
+    // Start spawning
+    gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
+    spawnCharacter(); // Immediate first spawn
+  });
 }
 
 // ============================================
@@ -517,10 +557,8 @@ function startPitzRound() {
   clearInterval(gameState.spawnInterval);
   clearInterval(gameState.timerInterval);
 
-  // Switch music: stop gameplay, play meow, start boss music
+  // Stop gameplay music
   stopGameplayMusic();
-  playRandomMeow();
-  setTimeout(() => playBossMusic(), 300);
 
   // Clear holes
   gameState.holes = Array(9).fill(null);
@@ -529,23 +567,32 @@ function startPitzRound() {
     char.classList.remove('visible');
   });
 
-  showScreen('pitz');
+  // Show Pitz countdown screen first
+  showScreen('pitzCountdown');
+  elements.pitzCountdownText.textContent = 'GET READY!';
+  playRandomMeow();
 
-  // Pitz timer
-  let pitzTime = CONFIG.pitzDuration;
-  elements.pitzTime.textContent = pitzTime;
-  elements.pitzTaps.textContent = '0';
-  elements.pitzMessage.textContent = 'TAP TAP TAP!';
+  runCountdown(elements.pitzCountdownText, () => {
+    // Now start the actual Pitz round
+    showScreen('pitz');
+    playBossMusic();
 
-  const pitzTimer = setInterval(() => {
-    pitzTime--;
+    // Pitz timer
+    let pitzTime = CONFIG.pitzDuration;
     elements.pitzTime.textContent = pitzTime;
+    elements.pitzTaps.textContent = '0';
+    elements.pitzMessage.textContent = 'TAP TAP TAP!';
 
-    if (pitzTime <= 0) {
-      clearInterval(pitzTimer);
-      endPitzRound();
-    }
-  }, 1000);
+    const pitzTimer = setInterval(() => {
+      pitzTime--;
+      elements.pitzTime.textContent = pitzTime;
+
+      if (pitzTime <= 0) {
+        clearInterval(pitzTimer);
+        endPitzRound();
+      }
+    }, 1000);
+  });
 }
 
 function handlePitzTap() {
