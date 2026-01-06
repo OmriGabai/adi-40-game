@@ -704,7 +704,7 @@ function checkEasterEgg(name) {
     return {
       type: 'tomer',
       icon: '🔥',
-      message: 'אה! גמצוץ! בהצלחה, מהקרמבוץ. כל הגוף מנצח את הרגליים! מינוס 50 נקודות 😈',
+      message: 'אה! כל הגוף מנצח את הרגליים! נקנסת ב-50 נקודות. בהצלחה, מהקרמבוץ 😈',
       bonus: -50
     };
   }
