@@ -104,6 +104,7 @@ const elements = {
     leaderboard: document.getElementById('leaderboard-screen')
   },
   countdownText: document.getElementById('countdown-text'),
+  tapToStart: document.getElementById('tap-to-start'),
   pitzCountdownText: document.getElementById('pitz-countdown-text'),
   playerName: document.getElementById('player-name'),
   startBtn: document.getElementById('start-btn'),
@@ -143,12 +144,23 @@ function toggleMute() {
     elements.globalMuteBtn.classList.toggle('muted', isMuted);
   }
 
-  // Mute/unmute all audio
-  if (audio) {
-    audio.gameplay.muted = isMuted;
-    audio.boss.muted = isMuted;
-    audio.purr.muted = isMuted;
-    audio.meows.forEach(m => m.muted = isMuted);
+  // Mute/unmute Web Audio API sources
+  if (isMuted) {
+    // Stop all playing audio when muting
+    if (currentGameplaySource && currentGameplaySource.gainNode) {
+      currentGameplaySource.gainNode.gain.value = 0;
+    }
+    if (currentPurrSource && currentPurrSource.gainNode) {
+      currentPurrSource.gainNode.gain.value = 0;
+    }
+  } else {
+    // Restore volume when unmuting
+    if (currentGameplaySource && currentGameplaySource.gainNode) {
+      currentGameplaySource.gainNode.gain.value = 0.28;
+    }
+    if (currentPurrSource && currentPurrSource.gainNode) {
+      currentPurrSource.gainNode.gain.value = 0.7;
+    }
   }
 }
 
@@ -681,40 +693,51 @@ function startGame() {
 
   gameState.playerName = name;
 
-  // Show countdown screen first
+  // Show countdown screen with tap-to-start button
   showScreen('countdown');
-  elements.countdownText.textContent = 'GET READY!';
+  elements.countdownText.classList.add('hidden');
+  elements.tapToStart.classList.remove('hidden');
 
-  runCountdown(elements.countdownText, () => {
-    // Now actually start the game
-    gameState.isPlaying = true;
-    showScreen('game');
+  // Wait for tap to start countdown
+  const handleTapToStart = () => {
+    elements.tapToStart.removeEventListener('click', handleTapToStart);
+    elements.tapToStart.classList.add('hidden');
+    elements.countdownText.classList.remove('hidden');
+    elements.countdownText.textContent = 'GET READY!';
 
-    // Start background music
-    setTimeout(() => {
-      playGameplayMusic();
-    }, 100);
+    runCountdown(elements.countdownText, () => {
+      // Now actually start the game
+      gameState.isPlaying = true;
+      showScreen('game');
 
-    // Start timer
-    gameState.timerInterval = setInterval(() => {
-      gameState.timeLeft--;
-      updateUI();
+      // Start background music
+      setTimeout(() => {
+        playGameplayMusic();
+      }, 100);
 
-      // Start screen shake 2 seconds before Pitz
-      if (gameState.timeLeft === CONFIG.pitzTriggerTime + 2 && !gameState.isPitzRound) {
-        elements.screens.game.classList.add('screen-shake');
-      }
+      // Start timer
+      gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft--;
+        updateUI();
 
-      if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
-        elements.screens.game.classList.remove('screen-shake');
-        startPitzRound();
-      }
-    }, 1000);
+        // Start screen shake 2 seconds before Pitz
+        if (gameState.timeLeft === CONFIG.pitzTriggerTime + 2 && !gameState.isPitzRound) {
+          elements.screens.game.classList.add('screen-shake');
+        }
 
-    // Start spawning
-    gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
-    spawnCharacter(); // Immediate first spawn
-  });
+        if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
+          elements.screens.game.classList.remove('screen-shake');
+          startPitzRound();
+        }
+      }, 1000);
+
+      // Start spawning
+      gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
+      spawnCharacter(); // Immediate first spawn
+    });
+  };
+
+  elements.tapToStart.addEventListener('click', handleTapToStart);
 }
 
 // ============================================
@@ -854,25 +877,70 @@ async function saveScore(name, score) {
   elements.savingIndicator.textContent = 'Saving score...';
   elements.savingIndicator.classList.remove('hidden');
 
+  const nameLower = name.toLowerCase();
+
   try {
     if (typeof firebase !== 'undefined' && firebaseInitialized) {
-      await firebase.database().ref('scores').push({
-        name: name,
-        score: score,
-        timestamp: Date.now()
+      // Check if player already has a score
+      const snapshot = await firebase.database().ref('scores')
+        .orderByChild('nameLower')
+        .equalTo(nameLower)
+        .once('value');
+
+      let existingKey = null;
+      let existingScore = 0;
+
+      snapshot.forEach(child => {
+        const data = child.val();
+        if (data.score > existingScore) {
+          existingKey = child.key;
+          existingScore = data.score;
+        }
       });
-      elements.savingIndicator.textContent = 'Score saved!';
+
+      if (existingKey && score <= existingScore) {
+        // Existing score is higher, don't update
+        elements.savingIndicator.textContent = `Your best: ${existingScore}`;
+      } else if (existingKey) {
+        // Update existing entry with new high score
+        await firebase.database().ref('scores/' + existingKey).update({
+          score: score,
+          timestamp: Date.now()
+        });
+        elements.savingIndicator.textContent = 'New high score!';
+      } else {
+        // New player, create entry
+        await firebase.database().ref('scores').push({
+          name: name,
+          nameLower: nameLower,
+          score: score,
+          timestamp: Date.now()
+        });
+        elements.savingIndicator.textContent = 'Score saved!';
+      }
     } else {
-      // Fallback: save locally
-      const scores = JSON.parse(localStorage.getItem('adi40scores') || '[]');
-      scores.push({ name, score, timestamp: Date.now() });
+      // Fallback: save locally with max logic
+      let scores = JSON.parse(localStorage.getItem('adi40scores') || '[]');
+      const existingIndex = scores.findIndex(s => s.name.toLowerCase() === nameLower);
+
+      if (existingIndex >= 0) {
+        if (score > scores[existingIndex].score) {
+          scores[existingIndex].score = score;
+          scores[existingIndex].timestamp = Date.now();
+          elements.savingIndicator.textContent = 'New high score!';
+        } else {
+          elements.savingIndicator.textContent = `Your best: ${scores[existingIndex].score}`;
+        }
+      } else {
+        scores.push({ name, nameLower, score, timestamp: Date.now() });
+        elements.savingIndicator.textContent = 'Score saved locally!';
+      }
       localStorage.setItem('adi40scores', JSON.stringify(scores));
-      elements.savingIndicator.textContent = 'Score saved locally!';
     }
   } catch (error) {
     console.error('Error saving score:', error);
     // Fallback to local storage
-    const scores = JSON.parse(localStorage.getItem('adi40scores') || '[]');
+    let scores = JSON.parse(localStorage.getItem('adi40scores') || '[]');
     scores.push({ name, score, timestamp: Date.now() });
     localStorage.setItem('adi40scores', JSON.stringify(scores));
     elements.savingIndicator.textContent = 'Score saved locally!';
@@ -883,8 +951,11 @@ async function saveScore(name, score) {
   }, 2000);
 }
 
-async function loadLeaderboard() {
-  elements.leaderboardList.innerHTML = '<p class="loading">Loading scores...</p>';
+async function loadLeaderboard(silentRefresh = false) {
+  // Only show loading text on initial load
+  if (!silentRefresh) {
+    elements.leaderboardList.innerHTML = '<p class="loading">Loading scores...</p>';
+  }
 
   let scores = [];
 
@@ -938,9 +1009,31 @@ async function loadLeaderboard() {
   }).join('');
 }
 
+// Leaderboard auto-refresh
+let leaderboardRefreshInterval = null;
+
 function showLeaderboard() {
   showScreen('leaderboard');
   loadLeaderboard();
+
+  // Start auto-refresh every 2 seconds
+  startLeaderboardRefresh();
+}
+
+function startLeaderboardRefresh() {
+  // Clear any existing interval
+  stopLeaderboardRefresh();
+
+  leaderboardRefreshInterval = setInterval(() => {
+    loadLeaderboard(true); // true = silent refresh (no loading text)
+  }, 2000);
+}
+
+function stopLeaderboardRefresh() {
+  if (leaderboardRefreshInterval) {
+    clearInterval(leaderboardRefreshInterval);
+    leaderboardRefreshInterval = null;
+  }
 }
 
 // ============================================
@@ -1006,11 +1099,13 @@ elements.endLeaderboardBtn.addEventListener('click', showLeaderboard);
 
 // Back button
 elements.backBtn.addEventListener('click', () => {
+  stopLeaderboardRefresh();
   showScreen('start');
 });
 
 // Play again
 elements.playAgainBtn.addEventListener('click', () => {
+  stopLeaderboardRefresh();
   showScreen('start');
 });
 

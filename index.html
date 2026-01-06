@@ -90,6 +90,7 @@
       </div>
 
       <div id="countdown-text" class="countdown-text">GET READY!</div>
+      <button id="tap-to-start" class="tap-to-start">👆 TAP TO START!</button>
     </div>
   </div>
 
@@ -172,13 +173,24 @@
 
     <div id="saving-indicator" class="saving">Saving score...</div>
 
-    <button id="play-again-btn" class="btn-primary">PLAY AGAIN</button>
-    <button id="end-leaderboard-btn" class="btn-secondary">View Leaderboard</button>
+    <button id="end-leaderboard-btn" class="btn-leaderboard">
+      <span class="btn-icon">🏆</span>
+      <span class="btn-label">SEE WHERE YOU RANK!</span>
+      <span class="live-badge">LIVE</span>
+    </button>
+
+    <button id="play-again-btn" class="btn-secondary">PLAY AGAIN</button>
   </div>
 
   <!-- LEADERBOARD SCREEN -->
   <div id="leaderboard-screen" class="screen">
-    <h2>🏆 LEADERBOARD 🏆</h2>
+    <div class="leaderboard-header">
+      <h2>🏆 LEADERBOARD 🏆</h2>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        <span class="live-text">LIVE</span>
+      </div>
+    </div>
 
     <div id="leaderboard-list" class="leaderboard-list">
       <p class="loading">Loading scores...</p>
