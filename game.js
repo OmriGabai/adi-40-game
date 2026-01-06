@@ -686,8 +686,28 @@ function runCountdown(textElement, callback) {
 // EASTER EGGS
 // ============================================
 
+// Helper to check if a name is a Tomer variant
+function isTomerName(name) {
+  const nameLower = name.toLowerCase();
+  return nameLower.includes('tomer') ||
+         nameLower.includes('lagbaomer') ||
+         name.includes('לגבעומר') ||
+         name.includes('תומר');
+}
+
 function checkEasterEgg(name) {
   const nameLower = name.toLowerCase();
+
+  // FIRST: Check if Tomer is trying to disguise himself
+  // If we've seen Tomer before AND this name is NOT a Tomer name, catch him!
+  if (localStorage.getItem('tomerWasHere') && !isTomerName(name)) {
+    return {
+      type: 'tomer-busted',
+      icon: '🕵️',
+      message: 'ניסיון נחמד, תומר 😏 אני יודע שזה אתה! קנס של 150 נקודות על ניסיון התחזות!',
+      bonus: -150
+    };
+  }
 
   // Check for Adi (birthday girl!) - starts with "adi" or "עדי"
   if (nameLower.startsWith('adi') || name.startsWith('עדי')) {
@@ -700,7 +720,9 @@ function checkEasterEgg(name) {
   }
 
   // Check for Tomer - contains "tomer" or "lagbaomer" or "לגבעומר" or "תומר"
-  if (nameLower.includes('tomer') || nameLower.includes('lagbaomer') || name.includes('לגבעומר') || name.includes('תומר')) {
+  if (isTomerName(name)) {
+    // Mark that Tomer was here for future visits
+    localStorage.setItem('tomerWasHere', 'true');
     return {
       type: 'tomer',
       icon: '🔥',
