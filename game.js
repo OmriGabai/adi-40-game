@@ -704,8 +704,8 @@ function checkEasterEgg(name) {
     return {
       type: 'tomer',
       icon: '🔥',
-      message: 'אה! גמצוץ! בהצלחה, מהקרמבוץ',
-      bonus: 0
+      message: 'אה! גמצוץ! בהצלחה, מהקרמבוץ. כל הגוף מנצח את הרגליים! מינוס 50 נקודות 😈',
+      bonus: -50
     };
   }
 
@@ -758,9 +758,9 @@ function startGame() {
   // Check for Easter eggs
   const easterEgg = checkEasterEgg(name);
 
-  // Apply bonus if any
-  if (easterEgg && easterEgg.bonus > 0) {
-    gameState.score = easterEgg.bonus;
+  // Apply bonus if any (can be positive or negative)
+  if (easterEgg && easterEgg.bonus !== 0) {
+    gameState.score = Math.max(0, easterEgg.bonus);
     updateUI();
   }
 
