@@ -1021,6 +1021,16 @@ body::before {
    LEADERBOARD
    ============================================ */
 
+#leaderboard-screen {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+}
+
 .leaderboard-header {
   display: flex;
   flex-direction: column;
