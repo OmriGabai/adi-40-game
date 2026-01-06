@@ -13,8 +13,8 @@ const CONFIG = {
   spawnInterval: 400, // ms between spawns (faster = more chaos!)
 
   // Visibility durations (ms) - 50% longer for easier tapping
-  normalVisibility: 1800,
-  familyVisibility: 1200,
+  normalVisibility: 2700,
+  familyVisibility: 1800,
 
   // Scoring
   points: {
@@ -580,7 +580,8 @@ function spawnCharacter() {
   const charEl = holeEl.querySelector('.character');
 
   // Set character appearance - all use images now
-  charEl.innerHTML = `<img src="${character.image}" alt="${character.name}" class="char-image">`;
+  // Using loading="eager" and decoding="sync" for instant display
+  charEl.innerHTML = `<img src="${character.image}" alt="${character.name}" class="char-image" loading="eager" decoding="sync">`;
   charEl.className = `character visible ${character.type}`;
   charEl.dataset.holeIndex = holeIndex; // Store index for tap handling
 
@@ -800,7 +801,8 @@ function endPitzRound() {
   gameState.isPitzRound = false;
   gameState.isPlaying = false;
 
-  // Play purr (gameplay music continues)
+  // Stop gameplay music and play purr
+  stopGameplayMusic();
   playPurrSound();
 
   // Calculate final score
