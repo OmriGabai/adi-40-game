@@ -741,6 +741,16 @@ function checkEasterEgg(name) {
     };
   }
 
+  // Check for Heli (Adi's mom!) - contains "הלי" or "אמא" or "heli" or "הרצליה"
+  if (name.includes('הלי') || name.includes('אמא') || nameLower.includes('heli') || name.includes('הרצליה')) {
+    return {
+      type: 'mom',
+      icon: '💐🥰',
+      message: 'היי אמא! איזה כיף שאת משחקת איתנו, קחי בונוס של 50 נקודות עליי!',
+      bonus: 50
+    };
+  }
+
   return null;
 }
 
