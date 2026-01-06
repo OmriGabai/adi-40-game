@@ -709,6 +709,16 @@ function checkEasterEgg(name) {
     };
   }
 
+  // Check for Yana
+  if (nameLower.includes('yana')) {
+    return {
+      type: 'love',
+      icon: '❤️',
+      message: 'נוצ׳קית, אני אוהב אותך',
+      bonus: 0
+    };
+  }
+
   return null;
 }
 
