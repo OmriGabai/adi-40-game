@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Adi vs The Big 4-0!</title>
+  <title>עדי נגד הארבעים!</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
   <!-- LOADING SCREEN -->
   <div id="loading-screen">
     <div class="loader-spinner"></div>
-    <p class="loader-text">Loading...</p>
+    <p class="loader-text">טוען...</p>
   </div>
 
   <!-- EASTER EGG MODAL -->
@@ -29,7 +29,7 @@
     <div class="easter-egg-content">
       <div class="easter-egg-icon" id="easter-egg-icon">🎉</div>
       <p class="easter-egg-message" id="easter-egg-message" dir="rtl"></p>
-      <button class="easter-egg-dismiss">👆 TAP TO CONTINUE</button>
+      <button class="easter-egg-dismiss">👆 לחצו להמשיך</button>
     </div>
   </div>
 
@@ -47,34 +47,33 @@
 
     <div class="logo-container">
       <div class="logo-glow"></div>
-      <h1><span class="title-line1">ADI VS</span><span class="title-line2">THE BIG 4-0</span></h1>
+      <h1><span class="title-line1">עדי נגד</span><span class="title-line2">הארבעים!</span></h1>
       <div class="logo-subtitle">
         <span class="mazal-tov">🎂 מזל טוב 🎂</span>
-        <span class="mazal-tov-en">MAZAL TOV!</span>
       </div>
     </div>
-    <p class="subtitle">Help Adi survive turning 40!</p>
+    <p class="subtitle">עזרו לעדי לשרוד את גיל 40!</p>
 
     <div class="instructions">
-      <p>✅ Tap <span class="good">gifts & family</span> for points</p>
-      <p>❌ Avoid <span class="bad">signs of aging</span>!</p>
-      <p>⚠️ BEWARE OF PITZ THE CAT ⚠️</p>
+      <p>✅ לחצו על <span class="good">מתנות ומשפחה</span> לנקודות</p>
+      <p>❌ הימנעו מ<span class="bad">סימני הזדקנות</span>!</p>
+      <p>⚠️ היזהרו מפיץ החתול ⚠️</p>
     </div>
 
     <div class="name-input">
-      <input type="text" id="player-name" placeholder="Enter your name" maxlength="15">
+      <input type="text" id="player-name" placeholder="הכניסו את השם שלכם" maxlength="15">
     </div>
 
-    <button id="start-btn" class="btn-primary">START GAME</button>
+    <button id="start-btn" class="btn-primary">התחילו לשחק</button>
 
-    <button id="leaderboard-btn" class="btn-secondary">View Leaderboard</button>
+    <button id="leaderboard-btn" class="btn-secondary">טבלת המובילים</button>
   </div>
 
   <!-- PRE-GAME COUNTDOWN SCREEN -->
   <div id="countdown-screen" class="screen">
     <div class="countdown-content">
       <div class="countdown-section good-section">
-        <h3>✅ TAP FOR POINTS!</h3>
+        <h3>✅ לחצו לנקודות!</h3>
         <div class="item-row">
           <img src="pics/gift.svg" alt="Gift" class="countdown-item">
           <img src="pics/cake.svg" alt="Cake" class="countdown-item">
@@ -89,7 +88,7 @@
       </div>
 
       <div class="countdown-section bad-section">
-        <h3>❌ AVOID THESE!</h3>
+        <h3>❌ הימנעו מאלה!</h3>
         <div class="item-row">
           <img src="pics/forty.svg" alt="40" class="countdown-item">
           <img src="pics/glasses.svg" alt="Glasses" class="countdown-item">
@@ -98,18 +97,18 @@
         </div>
       </div>
 
-      <div id="countdown-text" class="countdown-text">GET READY!</div>
-      <button id="tap-to-start" class="tap-to-start">👆 TAP TO START!</button>
+      <div id="countdown-text" class="countdown-text">התכוננו!</div>
+      <button id="tap-to-start" class="tap-to-start">👆 לחצו להתחיל!</button>
     </div>
   </div>
 
   <!-- PRE-PITZ COUNTDOWN SCREEN -->
   <div id="pitz-countdown-screen" class="screen">
     <div class="countdown-content">
-      <h2 class="pitz-incoming">🐱 PITZ INCOMING! 🐱</h2>
+      <h2 class="pitz-incoming">🐱 פיץ מתקרב! 🐱</h2>
       <img src="pics/pitz.jpg" alt="Pitz" class="pitz-preview">
-      <p class="pitz-instruction">TAP AS FAST AS YOU CAN!</p>
-      <div id="pitz-countdown-text" class="countdown-text">GET READY!</div>
+      <p class="pitz-instruction">לחצו כמה שיותר מהר!</p>
+      <div id="pitz-countdown-text" class="countdown-text">התכוננו!</div>
     </div>
   </div>
 
@@ -117,11 +116,11 @@
   <div id="game-screen" class="screen">
     <div class="game-header">
       <div class="score-display">
-        <span class="label">Score</span>
+        <span class="label">ניקוד</span>
         <span id="score">0</span>
       </div>
       <div class="timer-display">
-        <span class="label">Time</span>
+        <span class="label">זמן</span>
         <span id="timer">60</span>
       </div>
     </div>
@@ -144,57 +143,57 @@
   <!-- PITZ BONUS ROUND SCREEN -->
   <div id="pitz-screen" class="screen">
     <div class="pitz-header">
-      <h2>🐱 PITZ APPEARS! 🐱</h2>
-      <p>Tap the cat as fast as you can!</p>
+      <h2>🐱 פיץ הופיע! 🐱</h2>
+      <p>לחצו על החתול כמה שיותר מהר!</p>
       <div class="pitz-timer">
-        <span id="pitz-time">5</span>s
+        <span id="pitz-time">5</span> שניות
       </div>
     </div>
 
     <div id="pitz-taps" class="pitz-taps">0</div>
-    <div id="pitz-message" class="pitz-message">TAP TAP TAP!</div>
+    <div id="pitz-message" class="pitz-message">לחצו לחצו לחצו!</div>
 
     <div id="pitz-cat" class="pitz-cat">
-      <img src="pics/pitz.jpg" alt="Pitz the cat" class="cat-photo">
-      <span class="cat-name">Pitz</span>
+      <img src="pics/pitz.jpg" alt="פיץ החתול" class="cat-photo">
+      <span class="cat-name">פיץ</span>
     </div>
   </div>
 
   <!-- END SCREEN -->
   <div id="end-screen" class="screen">
-    <h2 id="end-title">🎉 GAME OVER! 🎉</h2>
+    <h2 id="end-title">🎉 סיום המשחק! 🎉</h2>
     <p id="end-message"></p>
 
     <div class="final-scores">
       <div class="score-row">
-        <span>Game Score:</span>
+        <span>ניקוד משחק:</span>
         <span id="final-game-score">0</span>
       </div>
       <div class="score-row">
-        <span>Pitz Bonus:</span>
+        <span>בונוס פיץ:</span>
         <span id="final-pitz-score">0</span>
       </div>
       <div class="score-row total">
-        <span>TOTAL:</span>
+        <span>סה״כ:</span>
         <span id="final-total-score">0</span>
       </div>
     </div>
 
-    <div id="saving-indicator" class="saving">Saving score...</div>
+    <div id="saving-indicator" class="saving">שומר ניקוד...</div>
 
     <button id="end-leaderboard-btn" class="btn-leaderboard">
       <span class="btn-icon">🏆</span>
-      <span class="btn-label">SEE WHERE YOU RANK!</span>
+      <span class="btn-label">איפה את/ה בדירוג?</span>
       <span class="live-badge">LIVE</span>
     </button>
 
-    <button id="play-again-btn" class="btn-secondary">PLAY AGAIN</button>
+    <button id="play-again-btn" class="btn-secondary">שחקו שוב</button>
   </div>
 
   <!-- LEADERBOARD SCREEN -->
   <div id="leaderboard-screen" class="screen">
     <div class="leaderboard-header">
-      <h2>🏆 LEADERBOARD 🏆</h2>
+      <h2>🏆 טבלת המובילים 🏆</h2>
       <div class="live-indicator">
         <span class="live-dot"></span>
         <span class="live-text">LIVE</span>
@@ -202,10 +201,10 @@
     </div>
 
     <div id="leaderboard-list" class="leaderboard-list">
-      <p class="loading">Loading scores...</p>
+      <p class="loading">טוען ניקודים...</p>
     </div>
 
-    <button id="back-btn" class="btn-secondary">Back</button>
+    <button id="back-btn" class="btn-secondary">חזרה</button>
   </div>
 
   <!-- Firebase SDK -->

@@ -35,40 +35,40 @@ const CONFIG = {
 
 const CHARACTERS = {
   good: [
-    { image: 'pics/gift.svg', name: 'Gift', type: 'good', points: CONFIG.points.gift, message: 'Ooh, presents!' },
-    { image: 'pics/cake.svg', name: 'Cake', type: 'good', points: CONFIG.points.cake, message: 'More cake!' },
-    { image: 'pics/balloon.svg', name: 'Balloon', type: 'good', points: CONFIG.points.balloon, message: 'Pop!' },
+    { image: 'pics/gift.svg', name: 'מתנה', type: 'good', points: CONFIG.points.gift, message: 'אוו, מתנות!' },
+    { image: 'pics/cake.svg', name: 'עוגה', type: 'good', points: CONFIG.points.cake, message: 'עוד עוגה!' },
+    { image: 'pics/balloon.svg', name: 'בלון', type: 'good', points: CONFIG.points.balloon, message: 'פופ!' },
   ],
   bad: [
-    { image: 'pics/forty.svg', name: '40', type: 'bad', points: CONFIG.points.bad, message: 'NOOOOO! The dreaded 40!' },
-    { image: 'pics/glasses.svg', name: 'Glasses', type: 'bad', points: CONFIG.points.bad, message: "Bifocals of Doom!" },
-    { image: 'pics/grayhair.svg', name: 'Grandma', type: 'bad', points: CONFIG.points.bad, message: 'Not yet grandma!' },
-    { image: 'pics/pills.svg', name: 'Vitamins', type: 'bad', points: CONFIG.points.bad, message: 'Vitamins already?!' },
+    { image: 'pics/forty.svg', name: '40', type: 'bad', points: CONFIG.points.bad, message: 'לאאאא! ה-40 המפחיד!' },
+    { image: 'pics/glasses.svg', name: 'משקפיים', type: 'bad', points: CONFIG.points.bad, message: 'משקפי קריאה של אימא!' },
+    { image: 'pics/grayhair.svg', name: 'סבתא', type: 'bad', points: CONFIG.points.bad, message: 'עוד לא סבתא!' },
+    { image: 'pics/pills.svg', name: 'ויטמינים', type: 'bad', points: CONFIG.points.bad, message: 'כבר ויטמינים?!' },
   ],
   family: [
-    { image: 'pics/gal.jpg', name: 'Gal', type: 'family', points: CONFIG.points.family, message: "Gal: Mom's still got it!" },
-    { image: 'pics/bar.jpg', name: 'Bar', type: 'family', points: CONFIG.points.family, message: "Bar: Happy 40th, Mom!" },
-    { image: 'pics/liv.jpg', name: 'Liv', type: 'family', points: CONFIG.points.family, message: "Liv: You're the best!" },
-    { image: 'pics/eran.JPG', name: 'Eran', type: 'family', points: CONFIG.points.eran, message: "Eran: You don't look a day over 39!" },
+    { image: 'pics/gal.jpg', name: 'גל', type: 'family', points: CONFIG.points.family, message: 'גל: אמא עדיין שורפת!' },
+    { image: 'pics/bar.jpg', name: 'בר', type: 'family', points: CONFIG.points.family, message: 'בר: מזל טוב אמא!' },
+    { image: 'pics/liv.jpg', name: 'ליב', type: 'family', points: CONFIG.points.family, message: 'ליב: את הכי טובה!' },
+    { image: 'pics/eran.JPG', name: 'ערן', type: 'family', points: CONFIG.points.eran, message: 'ערן: את לא נראית יום מעל 39!' },
   ]
 };
 
 // Pitz messages for different tap counts
 const PITZ_MESSAGES = {
-  default: ['Meow!', 'MEOW!', 'Mrrrow!', 'Prrrt?'],
+  default: ['מיאו!', 'מיאאאו!', 'מררראו!', 'פררר?'],
   milestones: {
-    10: 'Pitz is warming up...',
-    20: 'Pitz is purring!',
-    30: 'PITZ IS IN HEAVEN!',
-    40: '🎉 +40 BONUS for hitting 40!'
+    10: 'פיץ מתחמם...',
+    20: 'פיץ מרקרק!',
+    30: 'פיץ בגן עדן!',
+    40: '🎉 +40 בונוס על 40 לחיצות!'
   }
 };
 
 // End game messages
 const END_MESSAGES = {
-  high: { title: '🎉 ADI DEFEATED THE BIG 4-0! 🎉', message: "(Don't worry, 41 is downloading...)" },
-  medium: { title: 'Not Bad! 😄', message: "Pretty good for someone turning 40!" },
-  low: { title: 'The 40 Won... 👓', message: "But Adi's still fabulous!" }
+  high: { title: '🎉 עדי ניצחה את ה-40! 🎉', message: '(אל דאגה, 41 כבר בהורדה...)' },
+  medium: { title: 'לא רע! 😄', message: 'די טוב למישהי שהופכת ל-40!' },
+  low: { title: 'ה-40 ניצח... 👓', message: 'אבל עדי עדיין מדהימה!' }
 };
 
 // ============================================
@@ -270,7 +270,7 @@ async function preloadAllResources() {
     loaded++;
     loadingProgress = Math.round((loaded / totalResources) * 100);
     if (loaderText) {
-      loaderText.textContent = `Loading... ${loadingProgress}%`;
+      loaderText.textContent = `טוען... ${loadingProgress}%`;
     }
   };
 
@@ -286,7 +286,7 @@ async function preloadAllResources() {
   await Promise.all(imagePromises);
 
   // Load audio with Web Audio API (5 files)
-  if (loaderText) loaderText.textContent = 'Loading audio...';
+  if (loaderText) loaderText.textContent = 'טוען אודיו...';
   await loadAllAudio();
 
   resourcesLoaded = true;
@@ -659,9 +659,9 @@ function handleHoleTap(holeIndex) {
 
 function runCountdown(textElement, callback) {
   const steps = [
-    { text: 'READY...', delay: 1000 },
-    { text: 'SET...', delay: 1000 },
-    { text: 'GO!', delay: 500 }
+    { text: 'מוכנים...', delay: 1000 },
+    { text: 'היכון...', delay: 1000 },
+    { text: 'צא!', delay: 500 }
   ];
 
   let stepIndex = 0;
@@ -699,8 +699,8 @@ function checkEasterEgg(name) {
     };
   }
 
-  // Check for Tomer - contains "tomer" or "lagbaomer"
-  if (nameLower.includes('tomer') || nameLower.includes('lagbaomer')) {
+  // Check for Tomer - contains "tomer" or "lagbaomer" or "לגבעומר" or "תומר"
+  if (nameLower.includes('tomer') || nameLower.includes('lagbaomer') || name.includes('לגבעומר') || name.includes('תומר')) {
     return {
       type: 'tomer',
       icon: '🔥',
@@ -709,8 +709,8 @@ function checkEasterEgg(name) {
     };
   }
 
-  // Check for Yana/Yanu (starts with "yan")
-  if (nameLower.startsWith('yan')) {
+  // Check for Yana/Yanu (starts with "yan" or "יאנ")
+  if (nameLower.startsWith('yan') || name.startsWith('יאנ')) {
     return {
       type: 'love',
       icon: '❤️',
@@ -775,7 +775,7 @@ function startGame() {
       elements.tapToStart.removeEventListener('click', handleTapToStart);
       elements.tapToStart.classList.add('hidden');
       elements.countdownText.classList.remove('hidden');
-      elements.countdownText.textContent = 'GET READY!';
+      elements.countdownText.textContent = 'התכוננו!';
 
       runCountdown(elements.countdownText, () => {
         // Now actually start the game
@@ -845,7 +845,7 @@ function startPitzRound() {
 
   // Show Pitz countdown screen first
   showScreen('pitzCountdown');
-  elements.pitzCountdownText.textContent = 'GET READY!';
+  elements.pitzCountdownText.textContent = 'התכוננו!';
   playRandomMeow();
 
   runCountdown(elements.pitzCountdownText, () => {
@@ -857,7 +857,7 @@ function startPitzRound() {
     let pitzTime = CONFIG.pitzDuration;
     elements.pitzTime.textContent = pitzTime;
     elements.pitzTaps.textContent = '0';
-    elements.pitzMessage.textContent = 'TAP TAP TAP!';
+    elements.pitzMessage.textContent = 'לחצו לחצו לחצו!';
 
     const pitzTimer = setInterval(() => {
       pitzTime--;
@@ -954,7 +954,7 @@ function showEndScreen(gameScore, pitzScore, totalScore) {
 let firebaseInitialized = window.firebaseInitialized || false;
 
 async function saveScore(name, score) {
-  elements.savingIndicator.textContent = 'Saving score...';
+  elements.savingIndicator.textContent = 'שומר ניקוד...';
   elements.savingIndicator.classList.remove('hidden');
 
   const nameLower = name.toLowerCase();
@@ -980,14 +980,14 @@ async function saveScore(name, score) {
 
       if (existingKey && score <= existingScore) {
         // Existing score is higher, don't update
-        elements.savingIndicator.textContent = `Your best: ${existingScore}`;
+        elements.savingIndicator.textContent = `השיא שלך: ${existingScore}`;
       } else if (existingKey) {
         // Update existing entry with new high score
         await firebase.database().ref('scores/' + existingKey).update({
           score: score,
           timestamp: Date.now()
         });
-        elements.savingIndicator.textContent = 'New high score!';
+        elements.savingIndicator.textContent = 'שיא חדש!';
       } else {
         // New player, create entry
         await firebase.database().ref('scores').push({
@@ -996,7 +996,7 @@ async function saveScore(name, score) {
           score: score,
           timestamp: Date.now()
         });
-        elements.savingIndicator.textContent = 'Score saved!';
+        elements.savingIndicator.textContent = 'ניקוד נשמר!';
       }
     } else {
       // Fallback: save locally with max logic
@@ -1007,13 +1007,13 @@ async function saveScore(name, score) {
         if (score > scores[existingIndex].score) {
           scores[existingIndex].score = score;
           scores[existingIndex].timestamp = Date.now();
-          elements.savingIndicator.textContent = 'New high score!';
+          elements.savingIndicator.textContent = 'שיא חדש!';
         } else {
-          elements.savingIndicator.textContent = `Your best: ${scores[existingIndex].score}`;
+          elements.savingIndicator.textContent = `השיא שלך: ${scores[existingIndex].score}`;
         }
       } else {
         scores.push({ name, nameLower, score, timestamp: Date.now() });
-        elements.savingIndicator.textContent = 'Score saved locally!';
+        elements.savingIndicator.textContent = 'ניקוד נשמר מקומית!';
       }
       localStorage.setItem('adi40scores', JSON.stringify(scores));
     }
@@ -1034,7 +1034,7 @@ async function saveScore(name, score) {
 async function loadLeaderboard(silentRefresh = false) {
   // Only show loading text on initial load
   if (!silentRefresh) {
-    elements.leaderboardList.innerHTML = '<p class="loading">Loading scores...</p>';
+    elements.leaderboardList.innerHTML = '<p class="loading">טוען ניקודים...</p>';
   }
 
   let scores = [];
@@ -1069,7 +1069,7 @@ async function loadLeaderboard(silentRefresh = false) {
   }
 
   if (scores.length === 0) {
-    elements.leaderboardList.innerHTML = '<p class="loading">No scores yet. Be the first!</p>';
+    elements.leaderboardList.innerHTML = '<p class="loading">אין עדיין ניקודים. היו הראשונים!</p>';
     return;
   }
 
@@ -1113,7 +1113,7 @@ function setupAdminClear() {
     // After 3 clicks, ask for password
     if (liveClickCount >= 3) {
       liveClickCount = 0;
-      const password = prompt('Enter admin password:');
+      const password = prompt('הכנס סיסמת מנהל:');
       if (password === 'test') {
         clearAllScores();
       }
@@ -1125,12 +1125,12 @@ async function clearAllScores() {
   try {
     if (typeof firebase !== 'undefined' && firebaseInitialized) {
       await firebase.database().ref('scores').remove();
-      alert('Leaderboard cleared!');
+      alert('טבלת המובילים נמחקה!');
       loadLeaderboard();
     }
   } catch (error) {
     console.error('Error clearing scores:', error);
-    alert('Failed to clear leaderboard');
+    alert('שגיאה במחיקת טבלת המובילים');
   }
 }
 
