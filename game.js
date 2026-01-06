@@ -1034,7 +1034,7 @@ async function saveScore(name, score) {
 async function loadLeaderboard(silentRefresh = false) {
   // Only show loading text on initial load
   if (!silentRefresh) {
-    elements.leaderboardList.innerHTML = '<p class="loading">טוען ניקודים...</p>';
+    elements.leaderboardList.innerHTML = '<p class="loading">טוען ניקוד...</p>';
   }
 
   let scores = [];
@@ -1069,7 +1069,7 @@ async function loadLeaderboard(silentRefresh = false) {
   }
 
   if (scores.length === 0) {
-    elements.leaderboardList.innerHTML = '<p class="loading">אין עדיין ניקודים. היו הראשונים!</p>';
+    elements.leaderboardList.innerHTML = '<p class="loading">אין עדיין ניקוד. היו הראשונים!</p>';
     return;
   }
 
