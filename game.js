@@ -345,7 +345,7 @@ function playGameplayMusic() {
   // Stop existing gameplay music
   stopGameplayMusic();
 
-  const result = playBuffer(audioBuffers.gameplay, true, 0.4);
+  const result = playBuffer(audioBuffers.gameplay, true, 0.28);
   if (result) {
     currentGameplaySource = result;
     console.log('Gameplay music started (Web Audio)');
