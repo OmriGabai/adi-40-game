@@ -709,13 +709,13 @@ function checkEasterEgg(name) {
     };
   }
 
-  // Check for Yana
-  if (nameLower.includes('yana')) {
+  // Check for Yana/Yanu (starts with "yan")
+  if (nameLower.startsWith('yan')) {
     return {
       type: 'love',
       icon: '❤️',
-      message: 'נוצ׳קית, אני אוהב אותך',
-      bonus: 0
+      message: 'נוצ׳קית, אני אוהב אותך! קבלי 100 נקודות בונוס, רק אל תספרי לאף אחד 😉',
+      bonus: 100
     };
   }
 
