@@ -753,8 +753,36 @@ function showEasterEggModal(easterEgg, callback) {
   elements.easterEggIcon.textContent = easterEgg.icon;
   elements.easterEggMessage.textContent = easterEgg.message;
 
+  // Hidden reset for tomer-busted: click icon 3 times + password
+  let iconClickCount = 0;
+  let iconClickTimeout = null;
+  const handleIconClick = () => {
+    iconClickCount++;
+    if (iconClickTimeout) clearTimeout(iconClickTimeout);
+    iconClickTimeout = setTimeout(() => { iconClickCount = 0; }, 2000);
+
+    if (iconClickCount >= 3) {
+      iconClickCount = 0;
+      const password = prompt('הכנס סיסמה:');
+      if (password === 'test') {
+        localStorage.removeItem('tomerWasHere');
+        alert('האיתור אופס! תומר יכול לנסות שוב 😏');
+      }
+    }
+  };
+
+  // Only add icon click handler for tomer-busted
+  if (easterEgg.type === 'tomer-busted') {
+    elements.easterEggIcon.style.cursor = 'pointer';
+    elements.easterEggIcon.addEventListener('click', handleIconClick);
+  }
+
   const handleDismiss = () => {
     elements.easterEggDismiss.removeEventListener('click', handleDismiss);
+    if (easterEgg.type === 'tomer-busted') {
+      elements.easterEggIcon.removeEventListener('click', handleIconClick);
+      elements.easterEggIcon.style.cursor = '';
+    }
     elements.easterEggModal.classList.remove('active', 'birthday');
     callback();
   };
