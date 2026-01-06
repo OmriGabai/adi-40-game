@@ -128,7 +128,11 @@ const elements = {
   endLeaderboardBtn: document.getElementById('end-leaderboard-btn'),
   leaderboardList: document.getElementById('leaderboard-list'),
   backBtn: document.getElementById('back-btn'),
-  globalMuteBtn: document.getElementById('global-mute-btn')
+  globalMuteBtn: document.getElementById('global-mute-btn'),
+  easterEggModal: document.getElementById('easter-egg-modal'),
+  easterEggIcon: document.getElementById('easter-egg-icon'),
+  easterEggMessage: document.getElementById('easter-egg-message'),
+  easterEggDismiss: document.querySelector('.easter-egg-dismiss')
 };
 
 // ============================================
@@ -678,6 +682,54 @@ function runCountdown(textElement, callback) {
   setTimeout(nextStep, 1500); // Show instructions for 1.5 seconds first
 }
 
+// ============================================
+// EASTER EGGS
+// ============================================
+
+function checkEasterEgg(name) {
+  const nameLower = name.toLowerCase();
+
+  // Check for Adi (birthday girl!) - starts with "adi" or "עדי"
+  if (nameLower.startsWith('adi') || name.startsWith('עדי')) {
+    return {
+      type: 'birthday',
+      icon: '🎂🎉🎁',
+      message: 'הו! קרפדה! לכבוד הוא לנו שהצטרפת. קבלי מאיתנו תוספת של 250 נקודות כמתנת יום הולדת, בהצלחה',
+      bonus: 250
+    };
+  }
+
+  // Check for Tomer - contains "tomer" or "lagbaomer"
+  if (nameLower.includes('tomer') || nameLower.includes('lagbaomer')) {
+    return {
+      type: 'tomer',
+      icon: '🔥',
+      message: 'אה! גמצוץ! בהצלחה, מהקרמבוץ',
+      bonus: 0
+    };
+  }
+
+  return null;
+}
+
+function showEasterEggModal(easterEgg, callback) {
+  elements.easterEggModal.className = 'easter-egg-modal active';
+  if (easterEgg.type === 'birthday') {
+    elements.easterEggModal.classList.add('birthday');
+  }
+
+  elements.easterEggIcon.textContent = easterEgg.icon;
+  elements.easterEggMessage.textContent = easterEgg.message;
+
+  const handleDismiss = () => {
+    elements.easterEggDismiss.removeEventListener('click', handleDismiss);
+    elements.easterEggModal.classList.remove('active', 'birthday');
+    callback();
+  };
+
+  elements.easterEggDismiss.addEventListener('click', handleDismiss);
+}
+
 function startGame() {
   const name = elements.playerName.value.trim();
   if (!name) {
@@ -693,51 +745,69 @@ function startGame() {
 
   gameState.playerName = name;
 
-  // Show countdown screen with tap-to-start button
-  showScreen('countdown');
-  elements.countdownText.classList.add('hidden');
-  elements.tapToStart.classList.remove('hidden');
+  // Check for Easter eggs
+  const easterEgg = checkEasterEgg(name);
 
-  // Wait for tap to start countdown
-  const handleTapToStart = () => {
-    elements.tapToStart.removeEventListener('click', handleTapToStart);
-    elements.tapToStart.classList.add('hidden');
-    elements.countdownText.classList.remove('hidden');
-    elements.countdownText.textContent = 'GET READY!';
+  // Apply bonus if any
+  if (easterEgg && easterEgg.bonus > 0) {
+    gameState.score = easterEgg.bonus;
+    updateUI();
+  }
 
-    runCountdown(elements.countdownText, () => {
-      // Now actually start the game
-      gameState.isPlaying = true;
-      showScreen('game');
+  // Function to proceed to countdown screen
+  const proceedToCountdown = () => {
+    showScreen('countdown');
+    elements.countdownText.classList.add('hidden');
+    elements.tapToStart.classList.remove('hidden');
 
-      // Start background music
-      setTimeout(() => {
-        playGameplayMusic();
-      }, 100);
+    // Wait for tap to start countdown
+    const handleTapToStart = () => {
+      elements.tapToStart.removeEventListener('click', handleTapToStart);
+      elements.tapToStart.classList.add('hidden');
+      elements.countdownText.classList.remove('hidden');
+      elements.countdownText.textContent = 'GET READY!';
 
-      // Start timer
-      gameState.timerInterval = setInterval(() => {
-        gameState.timeLeft--;
-        updateUI();
+      runCountdown(elements.countdownText, () => {
+        // Now actually start the game
+        gameState.isPlaying = true;
+        showScreen('game');
 
-        // Start screen shake 2 seconds before Pitz
-        if (gameState.timeLeft === CONFIG.pitzTriggerTime + 2 && !gameState.isPitzRound) {
-          elements.screens.game.classList.add('screen-shake');
-        }
+        // Start background music
+        setTimeout(() => {
+          playGameplayMusic();
+        }, 100);
 
-        if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
-          elements.screens.game.classList.remove('screen-shake');
-          startPitzRound();
-        }
-      }, 1000);
+        // Start timer
+        gameState.timerInterval = setInterval(() => {
+          gameState.timeLeft--;
+          updateUI();
 
-      // Start spawning
-      gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
-      spawnCharacter(); // Immediate first spawn
-    });
+          // Start screen shake 2 seconds before Pitz
+          if (gameState.timeLeft === CONFIG.pitzTriggerTime + 2 && !gameState.isPitzRound) {
+            elements.screens.game.classList.add('screen-shake');
+          }
+
+          if (gameState.timeLeft <= CONFIG.pitzTriggerTime && !gameState.isPitzRound) {
+            elements.screens.game.classList.remove('screen-shake');
+            startPitzRound();
+          }
+        }, 1000);
+
+        // Start spawning
+        gameState.spawnInterval = setInterval(spawnCharacter, CONFIG.spawnInterval);
+        spawnCharacter(); // Immediate first spawn
+      });
+    };
+
+    elements.tapToStart.addEventListener('click', handleTapToStart);
   };
 
-  elements.tapToStart.addEventListener('click', handleTapToStart);
+  // Show Easter egg modal if applicable, then proceed
+  if (easterEgg) {
+    showEasterEggModal(easterEgg, proceedToCountdown);
+  } else {
+    proceedToCountdown();
+  }
 }
 
 // ============================================
