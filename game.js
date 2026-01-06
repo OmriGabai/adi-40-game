@@ -1012,6 +1012,51 @@ async function loadLeaderboard(silentRefresh = false) {
 // Leaderboard auto-refresh
 let leaderboardRefreshInterval = null;
 
+// Hidden admin: clear leaderboard
+let liveClickCount = 0;
+let liveClickTimeout = null;
+
+function setupAdminClear() {
+  const liveIndicator = document.querySelector('.live-indicator');
+  if (!liveIndicator) return;
+
+  liveIndicator.style.cursor = 'pointer';
+  liveIndicator.addEventListener('click', () => {
+    liveClickCount++;
+
+    // Reset count after 2 seconds of no clicks
+    if (liveClickTimeout) clearTimeout(liveClickTimeout);
+    liveClickTimeout = setTimeout(() => {
+      liveClickCount = 0;
+    }, 2000);
+
+    // After 3 clicks, ask for password
+    if (liveClickCount >= 3) {
+      liveClickCount = 0;
+      const password = prompt('Enter admin password:');
+      if (password === 'test') {
+        clearAllScores();
+      }
+    }
+  });
+}
+
+async function clearAllScores() {
+  try {
+    if (typeof firebase !== 'undefined' && firebaseInitialized) {
+      await firebase.database().ref('scores').remove();
+      alert('Leaderboard cleared!');
+      loadLeaderboard();
+    }
+  } catch (error) {
+    console.error('Error clearing scores:', error);
+    alert('Failed to clear leaderboard');
+  }
+}
+
+// Initialize admin feature when DOM ready
+document.addEventListener('DOMContentLoaded', setupAdminClear);
+
 function showLeaderboard() {
   showScreen('leaderboard');
   loadLeaderboard();
